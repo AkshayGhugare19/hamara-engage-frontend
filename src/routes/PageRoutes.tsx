@@ -6,6 +6,7 @@ import ProtectedRoute from './ProtectedRoute';
 import Dashboard from '@/pages/Dashboard';
 import UserTableList from '@/pages/user/UserTableList';
 import NotFound from '@/pages/NotFound';
+import ResetPassword from '@/pages/ResetPassword';
 
 const PageRoutes: FC = () => {
   return (
@@ -13,6 +14,7 @@ const PageRoutes: FC = () => {
       {/* Public Routes */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       {/* Protected Routes */}

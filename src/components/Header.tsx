@@ -34,7 +34,6 @@ const Header: FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [loggedInUser, setLoggedInUser] = useState<any>(null);
-  
 
   const now = new Date();
 
@@ -46,18 +45,18 @@ const Header: FC = () => {
     String(now.getUTCMinutes()).padStart(2, '0') +
     ' UTC';
 
-    const getLoggedInUser = async (): Promise<void> => {
-      try {
-const response = await apiService.get<ApiResponse<any>>('/users/me')
-if(response?.success) {
-  setLoggedInUser(response.data);
-}else{
-  console.error('Failed to fetch logged-in user:', response?.message || 'Unknown error');
-}
-      }catch (error) {
-        console.error('Error fetching logged-in user:', error);
+  const getLoggedInUser = async (): Promise<void> => {
+    try {
+      const response = await apiService.get<ApiResponse<any>>('/users/me');
+      if (response?.success) {
+        setLoggedInUser(response.data);
+      } else {
+        console.error('Failed to fetch logged-in user:', response?.message || 'Unknown error');
       }
+    } catch (error) {
+      console.error('Error fetching logged-in user:', error);
     }
+  };
   // close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent): void => {
@@ -73,7 +72,7 @@ if(response?.success) {
   useEffect(() => {
     getLoggedInUser();
   }, []);
-    return (
+  return (
     <div className="sticky h-14 px-6 flex items-center gap-4 border-b border-white/5 bg-[#0d1b3e]">
       {/* Date Time */}
       <div className="flex items-center gap-4 text-xs text-slate-500">
@@ -113,7 +112,7 @@ if(response?.success) {
 
       {/* Avatar */}
       <div className="w-8 h-8 rounded-full bg-amber-600 flex items-center justify-center text-xs font-bold text-white">
-        {loggedInUser?.name?.charAt(0) || "A"}
+        {loggedInUser?.first_name?.charAt(0) || 'A'}
       </div>
 
       {/* Dropdown */}
@@ -123,7 +122,7 @@ if(response?.success) {
           className="flex items-center gap-1 text-sm text-slate-200 font-medium hover:text-white transition"
           type="button"
         >
-          {loggedInUser?.name || "Admin User"}
+          {loggedInUser?.first_name || 'Admin User'}
           <ChevronDown open={open} />
         </button>
 
