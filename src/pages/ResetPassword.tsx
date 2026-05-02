@@ -34,7 +34,8 @@ const ResetPassword: FC = () => {
 
       const response = await apiService.post('/auth/reset-password', {
         email,
-        password,
+        token: '',
+        new_password: password,
       });
 
       if (response?.success) {
