@@ -9,6 +9,7 @@ import type { Role, RoleForm, RoleErrors } from '@/types/role';
 import CreateRole from '@/components/modals/role/CreateRole';
 import UpdateRole from '@/components/modals/role/UpdateRole';
 import { ApiError } from '@/types';
+import { DeleteRecord } from '@/components/DeleteRecord';
 
 interface PaginatedData<T> {
   data: T[];
@@ -133,14 +134,12 @@ const RoleTableList: FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await apiService.delete(`/roles/${id}`);
-      toast.success('Role deleted');
-      getRoles();
-    } catch {
-      toast.error('Delete failed');
-    }
+  const handleDelete = (id: string | number): void => {
+    DeleteRecord({
+      endpoint: `/roles/${id}`,
+      successMessage: 'Role deleted',
+      onSuccess: getRoles,
+    });
   };
 
   useEffect(() => {

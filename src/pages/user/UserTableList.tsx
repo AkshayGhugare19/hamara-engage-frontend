@@ -15,6 +15,7 @@ import type {
 } from '@/types';
 import { toast } from 'react-toastify';
 import { Role } from '@/types/role';
+import { DeleteRecord } from '@/components/DeleteRecord';
 
 const defaultForm: UserFormData = {
   first_name: '',
@@ -185,7 +186,11 @@ const UserTableList: FC = () => {
   };
 
   const handleDelete = (id: string | number): void => {
-    setUsers(users.filter((item) => item.id !== id));
+    DeleteRecord({
+      endpoint: `/users/${id}`,
+      successMessage: 'User deleted',
+      onSuccess: getUsers,
+    });
   };
 
   const getRoles = async (): Promise<void> => {
