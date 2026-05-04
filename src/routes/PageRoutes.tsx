@@ -7,6 +7,7 @@ import Dashboard from '@/pages/Dashboard';
 import UserTableList from '@/pages/user/UserTableList';
 import NotFound from '@/pages/NotFound';
 import ResetPassword from '@/pages/ResetPassword';
+import RoleTableList from '@/pages/role/RoleTableList';
 
 const PageRoutes: FC = () => {
   return (
@@ -21,6 +22,7 @@ const PageRoutes: FC = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/users" element={<UserTableList />} />
+        <Route path="/roles" element={<RoleTableList />} />
       </Route>
 
       {/* 404 Page */}

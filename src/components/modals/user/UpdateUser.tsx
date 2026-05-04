@@ -1,24 +1,24 @@
 import type { Dispatch, FC, SetStateAction } from 'react';
-import ModalInput from '../inputs/ModalInput';
+import ModalInput from '../../inputs/ModalInput';
 import type { UserFormData, UserFormErrors, UserRole, UserStatus } from '@/types';
 
 const roles: UserRole[] = ['ADMIN', 'USER'];
 
-interface CreateNewUserProps {
+interface UpdateUserProps {
   setShowModal: Dispatch<SetStateAction<boolean>>;
   form: UserFormData;
   setForm: Dispatch<SetStateAction<UserFormData>>;
   errors: UserFormErrors;
-  handleSave: () => void;
+  handleUpdate: () => void;
   loading: boolean;
 }
 
-const CreateNewUser: FC<CreateNewUserProps> = ({
+const UpdateUser: FC<UpdateUserProps> = ({
   setShowModal,
   form,
   setForm,
   errors,
-  handleSave,
+  handleUpdate,
   loading,
 }) => {
   return (
@@ -30,7 +30,7 @@ const CreateNewUser: FC<CreateNewUserProps> = ({
         className="bg-slate-900 w-full max-w-lg rounded-xl p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-bold mb-5">Create New User</h2>
+        <h2 className="text-xl font-bold mb-5">Update User</h2>
 
         <div className="grid grid-cols-2 gap-4">
           <ModalInput
@@ -79,16 +79,15 @@ const CreateNewUser: FC<CreateNewUserProps> = ({
             onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
           >
             <option value="">Select Role</option>
-
             {roles.map((item) => (
               <option key={item} value={item}>
                 {item}
               </option>
             ))}
           </select>
-
           {errors.role && <p className="text-red-400 text-xs mt-1">{errors.role}</p>}
         </div>
+
         <div className="mt-4">
           <label className="text-sm block mb-1">User Status</label>
           <select
@@ -96,30 +95,23 @@ const CreateNewUser: FC<CreateNewUserProps> = ({
             value={form.status}
             onChange={(e) => setForm({ ...form, status: e.target.value as UserStatus })}
           >
-            <option value="">Select Status</option>
-
             {['ACTIVE', 'INACTIVE'].map((item) => (
               <option key={item} value={item}>
                 {item}
               </option>
             ))}
           </select>
-
-          {errors.status && <p className="text-red-400 text-xs mt-1">{errors.status}</p>}
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
-          <button onClick={() => setShowModal(false)} type="button">
-            Cancel
-          </button>
+          <button onClick={() => setShowModal(false)}>Cancel</button>
 
           <button
-            onClick={handleSave}
+            onClick={handleUpdate}
             className="bg-blue-600 px-5 py-2 rounded text-white"
-            type="button"
             disabled={loading}
           >
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? 'Updating...' : 'Update'}
           </button>
         </div>
       </div>
@@ -127,4 +119,4 @@ const CreateNewUser: FC<CreateNewUserProps> = ({
   );
 };
 
-export default CreateNewUser;
+export default UpdateUser;

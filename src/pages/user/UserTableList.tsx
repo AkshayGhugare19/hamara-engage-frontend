@@ -1,8 +1,8 @@
 import { useState, useEffect, type FC } from 'react';
 import DashboardLayout from '@/layout/DashboardLayout';
 import PageHeaderBreadcrumb from '@/components/PageHeaderBreadcrumb';
-import CreateNewUser from '@/components/user/CreateNewUser';
-import UpdateUser from '@/components/user/UpdateUser';
+import CreateNewUser from '@/components/modals/user/CreateNewUser';
+import UpdateUser from '@/components/modals/user/UpdateUser';
 import apiService from '@/services/api';
 import Pagination from '@/components/Pagination';
 import type {
@@ -38,7 +38,9 @@ const UserTableList: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const filteredUsers = users.filter((user) =>
-    `${user?.first_name ?? ''} ${user?.last_name ?? ''} ${user?.email ?? ''} ${user?.username ?? ''}`.toLowerCase().includes(search.toLowerCase())
+    `${user?.first_name ?? ''} ${user?.last_name ?? ''} ${user?.email ?? ''} ${user?.username ?? ''}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
   );
 
   const validate = (): UserFormErrors => {
@@ -114,15 +116,18 @@ const UserTableList: FC = () => {
 
     try {
       setLoading(true);
-      const response = await apiService.post<AddOrUpdateUserRequest>(`/users/update-by/${form?.id}`, {
-        first_name: form?.first_name,
-        last_name: form?.last_name,
-        email: form?.email,
-        mobile: form?.mobile,
-        username: form?.username,
-        role: form?.role,
-        status: form?.status,
-      });
+      const response = await apiService.post<AddOrUpdateUserRequest>(
+        `/users/update-by/${form?.id}`,
+        {
+          first_name: form?.first_name,
+          last_name: form?.last_name,
+          email: form?.email,
+          mobile: form?.mobile,
+          username: form?.username,
+          role: form?.role,
+          status: form?.status,
+        }
+      );
       if (response?.success) {
         toast.success(response?.message || 'User updated successfully');
         getUsers();
@@ -153,11 +158,7 @@ const UserTableList: FC = () => {
         <div className="flex justify-between items-center mb-6">
           <PageHeaderBreadcrumb
             title="User Management"
-            items={[
-              { label: 'Home', clickable: true },
-              { label: 'Settings' },
-              { label: 'Users' },
-            ]}
+            items={[{ label: 'Home', clickable: true }, { label: 'Settings' }, { label: 'Users' }]}
           />
 
           <button
@@ -209,10 +210,11 @@ const UserTableList: FC = () => {
 
                     <td className="p-3">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs ${user?.status === 'ACTIVE'
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'bg-red-500/20 text-red-400'
-                          }`}
+                        className={`px-3 py-1 rounded-full text-xs ${
+                          user?.status === 'ACTIVE'
+                            ? 'bg-green-500/20 text-green-400'
+                            : 'bg-red-500/20 text-red-400'
+                        }`}
                       >
                         {user?.status}
                       </span>
