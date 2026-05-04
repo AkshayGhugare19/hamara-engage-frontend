@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  type ReactNode,
-  type FC,
-} from 'react';
+import { createContext, useContext, useState, type ReactNode, type FC } from 'react';
 import { toast } from 'react-toastify';
 import type { AuthContextType } from '@/types';
 
@@ -15,38 +8,46 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(null);
+const TOKEN_KEY = 'token';
+const EXPIRY_KEY = 'token_expiry';
 
-  useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    if (savedToken) {
-      setToken(savedToken);
-    }
-  }, []);
+const getValidToken = (): string | null => {
+  const token = sessionStorage.getItem(TOKEN_KEY);
+  const expiry = sessionStorage.getItem(EXPIRY_KEY);
+
+  if (token && expiry && Date.now() < Number(expiry)) {
+    return token;
+  }
+
+  sessionStorage.clear();
+  return null;
+};
+
+export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
+  const [token, setToken] = useState<string | null>(getValidToken());
 
   const login = (newToken: string): void => {
-    localStorage.setItem('token', newToken);
+    const expiryTime = Date.now() + 30 * 60 * 1000;
+
+    sessionStorage.setItem(TOKEN_KEY, newToken);
+    sessionStorage.setItem(EXPIRY_KEY, expiryTime.toString());
+
     setToken(newToken);
   };
 
   const logout = (): void => {
-    localStorage.removeItem('token');
+    sessionStorage.clear();
     setToken(null);
     toast.success('Logged out successfully');
   };
 
-  return (
-    <AuthContext.Provider value={{ token, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ token, login, logout }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
 };

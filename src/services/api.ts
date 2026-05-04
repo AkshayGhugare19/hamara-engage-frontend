@@ -1,10 +1,5 @@
-import axios, {
-  type AxiosInstance,
-  type AxiosError,
-  type AxiosResponse,
-  type InternalAxiosRequestConfig,
-} from 'axios';
-import type { ApiError, ApiResponse } from '@/types';
+import axios, { type AxiosInstance } from 'axios';
+import type { ApiResponse } from '@/types';
 
 /**
  * Main Axios Instance
@@ -21,35 +16,25 @@ const api: AxiosInstance = axios.create({
  * Request Interceptor
  * Add Access Token Automatically
  */
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('token');
+api.interceptors.request.use((config) => {
+  const token = sessionStorage.getItem('token');
+  const expiry = sessionStorage.getItem('token_expiry');
 
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  if (token && expiry && Date.now() < Number(expiry)) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-    return config;
-  },
-  (error: AxiosError) => Promise.reject(error)
-);
+  return config;
+});
 
-/**
- * Response Interceptor
- * Handle Common Errors
- */
 api.interceptors.response.use(
-  (response: AxiosResponse) => response.data,
-  async (error: AxiosError<ApiError>) => {
+  (res) => res.data,
+  (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
+      sessionStorage.clear();
     }
 
-    return Promise.reject(
-      error.response?.data ?? {
-        message: 'Something went wrong',
-      }
-    );
+    return Promise.reject(error.response?.data ?? { message: 'Something went wrong' });
   }
 );
 

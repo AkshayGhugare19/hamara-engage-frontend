@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/context/AuthContext';
@@ -24,7 +24,7 @@ const Login = () => {
       console.log('Login response:', response);
       if (response?.success) {
         if (response?.data?.token) {
-          login(response.data.token);
+          login(response?.data?.token);
           navigate('/dashboard');
           toast.success('Login successful');
         } else {
@@ -42,6 +42,15 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('token');
+    const expiry = sessionStorage.getItem('token_expiry');
+    console.log('Login useEffect - token:', token, 'expiry:', expiry);
+    if (token && expiry && Date.now() < Number(expiry)) {
+      window.location.href = '/dashboard';
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">

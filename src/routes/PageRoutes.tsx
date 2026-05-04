@@ -8,15 +8,18 @@ import UserTableList from '@/pages/user/UserTableList';
 import NotFound from '@/pages/NotFound';
 import ResetPassword from '@/pages/ResetPassword';
 import RoleTableList from '@/pages/role/RoleTableList';
+import PublicRoute from './PublicRoute';
 
 const PageRoutes: FC = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route element={<PublicRoute />}>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+      </Route>
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>

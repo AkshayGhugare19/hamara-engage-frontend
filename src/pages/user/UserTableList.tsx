@@ -126,6 +126,7 @@ const UserTableList: FC = () => {
         toast.success('User created successfully');
         getUsers();
       } else {
+        console.error('Create User failed:', response);
         toast.error(response?.message || 'Failed to create user');
       }
     } catch (err) {
