@@ -120,7 +120,7 @@ const UserTableList: FC = () => {
         role: form?.role,
         status: form?.status,
       });
-
+      console.log('Create User response:', response);
       if (response?.success) {
         closeCreateModal();
         toast.success('User created successfully');
@@ -130,8 +130,11 @@ const UserTableList: FC = () => {
       }
     } catch (err) {
       const apiErr = err as ApiError;
-      console.log('apiErr:', apiErr);
-      // setErrors({apiErr?.errors || 'Failed to create user' });
+      if (apiErr?.errors) {
+        setErrors(apiErr.errors);
+      } else {
+        console.log('apiErr:', apiErr);
+      }
     } finally {
       setLoading(false);
     }

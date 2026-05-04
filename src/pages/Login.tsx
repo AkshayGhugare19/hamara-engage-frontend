@@ -1,4 +1,4 @@
-import { useState, type FC, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/context/AuthContext';
@@ -6,7 +6,7 @@ import apiService from '@/services/api';
 import ButtonLoader from '@/components/ButtonLoader';
 import type { ApiError, LoginResponseData } from '@/types';
 
-const Login: FC = () => {
+const Login = () => {
   const [email, setEmail] = useState<string>('admin@test.com');
   const [password, setPassword] = useState<string>('123456');
   const [loading, setLoading] = useState<boolean>(false);
