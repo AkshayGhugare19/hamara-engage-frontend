@@ -9,6 +9,9 @@ import NotFound from '@/pages/NotFound';
 import ResetPassword from '@/pages/ResetPassword';
 import RoleTableList from '@/pages/role/RoleTableList';
 import PublicRoute from './PublicRoute';
+import UserLogTableList from '@/pages/userLog/UserLogTableList';
+import SystemSettings from '@/pages/systemSettings/SystemSettings';
+import ProfilePage from '@/pages/profiles/ProfilePage';
 
 const PageRoutes: FC = () => {
   return (
@@ -23,9 +26,12 @@ const PageRoutes: FC = () => {
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/users" element={<UserTableList />} />
+        <Route path="/user-logs" element={<UserLogTableList />} />
         <Route path="/roles" element={<RoleTableList />} />
+        <Route path="/system-settings" element={<SystemSettings />} />
       </Route>
 
       {/* 404 Page */}

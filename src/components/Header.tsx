@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, type FC } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { ApiResponse } from '@/types';
 import apiService from '@/services/api';
+import { useNavigate } from 'react-router-dom';
 
 const SearchIcon: FC = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -30,7 +31,7 @@ const ChevronDown: FC<ChevronDownProps> = ({ open }) => (
 
 const Header: FC = () => {
   const { logout } = useAuth();
-
+  const navigate = useNavigate();
   const [open, setOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [loggedInUser, setLoggedInUser] = useState<any>(null);
@@ -73,7 +74,7 @@ const Header: FC = () => {
     getLoggedInUser();
   }, []);
   return (
-    <div className="sticky h-14 px-6 flex items-center gap-4 border-b border-white/5 bg-[#0d1b3e]">
+    <div className="sticky top-0 z-50 h-14 px-6 flex items-center gap-4 border-b border-white/5 bg-[#0d1b3e]">
       {/* Date Time */}
       <div className="flex items-center gap-4 text-xs text-slate-500">
         <span>{utcStr}</span>
@@ -129,6 +130,9 @@ const Header: FC = () => {
         {open && (
           <div className="absolute right-0 top-10 w-44 bg-[#162040] border border-white/10 rounded-lg shadow-xl overflow-hidden z-50">
             <button
+              onClick={() => {
+                navigate('/profile');
+              }}
               className="w-full text-left px-4 py-3 text-sm text-slate-200 hover:bg-white/5"
               type="button"
             >

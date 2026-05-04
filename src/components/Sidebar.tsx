@@ -128,7 +128,7 @@ const Sidebar: FC = () => {
     <div
       className={`${
         collapsed ? 'w-[78px] min-w-[78px]' : 'w-[240px] min-w-[240px]'
-      } bg-[#0d1b3e] border-r border-white/5 flex flex-col h-screen sticky top-0 overflow-y-auto thin-scrollbar transition-all duration-300`}
+      } bg-[#0d1b3e] border-r border-white/5 flex flex-col h-screen sticky  top-0 overflow-y-auto thin-scrollbar transition-all duration-300`}
     >
       <div className="flex items-center justify-between px-4 pt-5 pb-3">
         {!collapsed && (
