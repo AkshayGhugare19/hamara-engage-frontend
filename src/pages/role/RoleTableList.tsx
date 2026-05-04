@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import type { Role, RoleForm, RoleErrors } from '@/types/role';
 import CreateRole from '@/components/modals/role/CreateRole';
 import UpdateRole from '@/components/modals/role/UpdateRole';
+import { ApiError } from '@/types';
 
 interface PaginatedData<T> {
   data: T[];
@@ -83,12 +84,18 @@ const RoleTableList: FC = () => {
         name: form.name,
         description: form.description,
       });
-
+      console.log('Create Role response:', response);
       if (response?.success) {
         toast.success(response?.message || 'Role created successfully');
         getRoles();
         closeCreateModal();
+      } else {
+        closeCreateModal();
       }
+    } catch (err) {
+      const apiErr = err as ApiError;
+      console.log('Create Role error:', apiErr);
+      toast.error(apiErr.message || 'Failed to create role');
     } finally {
       setLoading(false);
       closeCreateModal();
@@ -114,6 +121,10 @@ const RoleTableList: FC = () => {
         toast.success(response?.message || 'Role updated successfully');
         getRoles();
       }
+    } catch (err) {
+      const apiErr = err as ApiError;
+      console.log('Update Role error:', apiErr);
+      toast.error(apiErr.message || 'Failed to update role');
     } finally {
       setLoading(false);
       setShowUpdate(false);

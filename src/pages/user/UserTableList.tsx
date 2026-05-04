@@ -135,6 +135,7 @@ const UserTableList: FC = () => {
         setErrors(apiErr.errors);
       } else {
         console.log('apiErr:', apiErr);
+        toast.error(apiErr?.message);
       }
     } finally {
       setLoading(false);
@@ -165,16 +166,21 @@ const UserTableList: FC = () => {
       if (response?.success) {
         toast.success(response?.message || 'User updated successfully');
         getUsers();
+        closeShowUpdateModal();
       } else {
         toast.error(response?.message || 'Failed to update user');
+        closeShowUpdateModal();
       }
     } catch (err) {
-      console.error(err);
+      const apiErr = err as ApiError;
+      if (apiErr?.errors) {
+        setErrors(apiErr.errors);
+      } else {
+        console.log('apiErr:', apiErr);
+        toast.error(apiErr?.message);
+      }
     } finally {
       setLoading(false);
-      setShowUpdateModal(false);
-      setForm(defaultForm);
-      setErrors({});
     }
   };
 
