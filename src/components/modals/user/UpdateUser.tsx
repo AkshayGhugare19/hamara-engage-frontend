@@ -1,30 +1,31 @@
 import type { Dispatch, FC, SetStateAction } from 'react';
 import ModalInput from '../../inputs/ModalInput';
 import type { UserFormData, UserFormErrors, UserRole, UserStatus } from '@/types';
-
-const roles: UserRole[] = ['ADMIN', 'USER'];
+import { Role } from '@/types/role';
 
 interface UpdateUserProps {
-  setShowModal: Dispatch<SetStateAction<boolean>>;
+  closeShowUpdateModal: Dispatch<SetStateAction<boolean>>;
   form: UserFormData;
   setForm: Dispatch<SetStateAction<UserFormData>>;
   errors: UserFormErrors;
   handleUpdate: () => void;
   loading: boolean;
+  roles: Role[];
 }
 
 const UpdateUser: FC<UpdateUserProps> = ({
-  setShowModal,
+  closeShowUpdateModal,
   form,
   setForm,
   errors,
   handleUpdate,
   loading,
+  roles,
 }) => {
   return (
     <div
       className="fixed inset-0 bg-black/70 flex justify-center items-center z-50"
-      onClick={() => setShowModal(false)}
+      onClick={() => closeShowUpdateModal(false)}
     >
       <div
         className="bg-slate-900 w-full max-w-lg rounded-xl p-6"
@@ -80,8 +81,8 @@ const UpdateUser: FC<UpdateUserProps> = ({
           >
             <option value="">Select Role</option>
             {roles.map((item) => (
-              <option key={item} value={item}>
-                {item}
+              <option key={item.id} value={item.name}>
+                {item.name}
               </option>
             ))}
           </select>
@@ -104,7 +105,7 @@ const UpdateUser: FC<UpdateUserProps> = ({
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
-          <button onClick={() => setShowModal(false)}>Cancel</button>
+          <button onClick={() => closeShowUpdateModal(false)}>Cancel</button>
 
           <button
             onClick={handleUpdate}

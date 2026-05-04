@@ -1,30 +1,31 @@
 import type { Dispatch, FC, SetStateAction } from 'react';
 import ModalInput from '../../inputs/ModalInput';
 import type { UserFormData, UserFormErrors, UserRole, UserStatus } from '@/types';
-
-const roles: UserRole[] = ['ADMIN', 'USER'];
+import { Role } from '@/types/role';
 
 interface CreateNewUserProps {
-  setShowModal: Dispatch<SetStateAction<boolean>>;
+  closeCreateModal: Dispatch<SetStateAction<boolean>>;
   form: UserFormData;
   setForm: Dispatch<SetStateAction<UserFormData>>;
   errors: UserFormErrors;
   handleSave: () => void;
   loading: boolean;
+  roles: Role[];
 }
 
 const CreateNewUser: FC<CreateNewUserProps> = ({
-  setShowModal,
+  closeCreateModal,
   form,
   setForm,
   errors,
   handleSave,
   loading,
+  roles,
 }) => {
   return (
     <div
       className="fixed inset-0 bg-black/70 flex justify-center items-center z-50"
-      onClick={() => setShowModal(false)}
+      onClick={() => closeCreateModal(false)}
     >
       <div
         className="bg-slate-900 w-full max-w-lg rounded-xl p-6"
@@ -81,8 +82,8 @@ const CreateNewUser: FC<CreateNewUserProps> = ({
             <option value="">Select Role</option>
 
             {roles.map((item) => (
-              <option key={item} value={item}>
-                {item}
+              <option key={item.id} value={item.name}>
+                {item.name}
               </option>
             ))}
           </select>
@@ -109,7 +110,7 @@ const CreateNewUser: FC<CreateNewUserProps> = ({
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
-          <button onClick={() => setShowModal(false)} type="button">
+          <button onClick={() => closeCreateModal(false)} type="button">
             Cancel
           </button>
 

@@ -14,6 +14,7 @@ import type {
   UserFormErrors,
 } from '@/types';
 import { toast } from 'react-toastify';
+import { Role } from '@/types/role';
 
 const defaultForm: UserFormData = {
   first_name: '',
@@ -27,6 +28,7 @@ const defaultForm: UserFormData = {
 
 const UserTableList: FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [search, setSearch] = useState<string>('');
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -42,6 +44,34 @@ const UserTableList: FC = () => {
       .toLowerCase()
       .includes(search.toLowerCase())
   );
+
+  const openCreateModal = (): void => {
+    setShowCreateModal(true);
+  };
+  const closeCreateModal = (): void => {
+    setShowCreateModal(false);
+    setForm(defaultForm);
+    setErrors({});
+  };
+
+  const openShowUpdateModal = (user: User): void => {
+    setShowUpdateModal(true);
+    setForm({
+      id: user?.id,
+      first_name: user?.first_name || '',
+      last_name: user?.last_name || '',
+      email: user?.email || '',
+      mobile: user?.mobile || '',
+      username: user?.username || '',
+      role: user?.role || '',
+      status: user?.status || 'ACTIVE',
+    });
+  };
+  const closeShowUpdateModal = (): void => {
+    setShowUpdateModal(false);
+    setForm(defaultForm);
+    setErrors({});
+  };
 
   const validate = (): UserFormErrors => {
     const newErrors: UserFormErrors = {};
@@ -72,6 +102,7 @@ const UserTableList: FC = () => {
 
   const handleSave = async (): Promise<void> => {
     const newErrors = validate();
+    console.log('Validation Errors:', newErrors);
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -91,6 +122,7 @@ const UserTableList: FC = () => {
       });
 
       if (response?.success) {
+        closeCreateModal();
         toast.success('User created successfully');
         getUsers();
       } else {
@@ -98,12 +130,10 @@ const UserTableList: FC = () => {
       }
     } catch (err) {
       const apiErr = err as ApiError;
-      console.error(apiErr);
+      console.log('apiErr:', apiErr);
+      // setErrors({apiErr?.errors || 'Failed to create user' });
     } finally {
       setLoading(false);
-      setShowCreateModal(false);
-      setForm(defaultForm);
-      setErrors({});
     }
   };
 
@@ -148,8 +178,24 @@ const UserTableList: FC = () => {
     setUsers(users.filter((item) => item.id !== id));
   };
 
+  const getRoles = async (): Promise<void> => {
+    try {
+      const response = await apiService.get<PaginatedData<Role>>('/roles/paginate', {
+        page: 1,
+        limit: 100,
+      });
+      console.log('Get Roles response:', response);
+      if (response?.success && response?.data) {
+        setRoles(response?.data?.data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     getUsers();
+    getRoles();
   }, [page, limit]);
 
   return (
@@ -161,10 +207,7 @@ const UserTableList: FC = () => {
             items={[{ label: 'Home', clickable: true }, { label: 'Settings' }, { label: 'Users' }]}
           />
 
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-blue-600 px-4 py-2 rounded text-white"
-          >
+          <button onClick={openCreateModal} className="bg-blue-600 px-4 py-2 rounded text-white">
             + Create New User
           </button>
         </div>
@@ -226,17 +269,7 @@ const UserTableList: FC = () => {
                       <button
                         className="bg-blue-600 px-3 py-1 rounded text-xs"
                         onClick={() => {
-                          setForm({
-                            id: user?.id,
-                            first_name: user?.first_name || '',
-                            last_name: user?.last_name || '',
-                            email: user?.email || '',
-                            mobile: user?.mobile || '',
-                            username: user?.username || '',
-                            role: user?.role || '',
-                            status: user?.status || 'ACTIVE',
-                          });
-                          setShowUpdateModal(true);
+                          openShowUpdateModal(user);
                         }}
                       >
                         Edit
@@ -260,23 +293,25 @@ const UserTableList: FC = () => {
 
         {showCreateModal && (
           <CreateNewUser
-            setShowModal={setShowCreateModal}
+            closeCreateModal={closeCreateModal}
             form={form}
             setForm={setForm}
             errors={errors}
             handleSave={handleSave}
             loading={loading}
+            roles={roles}
           />
         )}
 
         {showUpdateModal && (
           <UpdateUser
-            setShowModal={setShowUpdateModal}
+            closeShowUpdateModal={closeShowUpdateModal}
             form={form}
             setForm={setForm}
             errors={errors}
             handleUpdate={handleUpdate}
             loading={loading}
+            roles={roles}
           />
         )}
       </div>
