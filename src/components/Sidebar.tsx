@@ -1,7 +1,5 @@
-import { useState, type FC } from 'react';
-import { NavLink } from 'react-router-dom';
-
-/* ---------------- Icons ---------------- */
+import { useEffect, useState, type FC } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 
 const GamanzaIcon: FC = () => (
   <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
@@ -52,12 +50,18 @@ const HelpIcon: FC = () => (
 );
 
 const PlusIcon: FC = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+  >
     <line x1="12" y1="5" x2="12" y2="19" />
     <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );
-
 interface ChevronDownProps {
   open: boolean;
 }
@@ -76,22 +80,49 @@ const ChevronDown: FC<ChevronDownProps> = ({ open }) => (
   </svg>
 );
 
-/* ---------------- Styles ---------------- */
-
 const navItem =
   'flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-150 border-l-[3px]';
-
 const active = 'text-blue-400 bg-blue-400/10 border-blue-400 font-medium';
-
 const inactive = 'text-slate-400 hover:text-slate-100 hover:bg-white/5 border-transparent';
 
-/* ---------------- Sidebar ---------------- */
-
 const Sidebar: FC = () => {
-  const [crmOpen, setCrmOpen] = useState<boolean>(true);
-  const [gameOpen, setGameOpen] = useState<boolean>(false);
-  const [settingOpen, setSettingOpen] = useState<boolean>(false);
-  const [collapsed, setCollapsed] = useState<boolean>(false);
+  const location = useLocation();
+  const path = location.pathname;
+
+  const [crmOpen, setCrmOpen] = useState(false);
+  const [gameOpen, setGameOpen] = useState(false);
+  const [settingOpen, setSettingOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const isCRMActive = path.startsWith('/crm');
+
+  const isGameActive =
+    path.startsWith('/missions') ||
+    path.startsWith('/mission-bundles') ||
+    path.startsWith('/ranks') ||
+    path.startsWith('/token-rules') ||
+    path.startsWith('/xp-point') ||
+    path.startsWith('/player-categories') ||
+    path.startsWith('/reward-shop') ||
+    path.startsWith('/prizeshark') ||
+    path.startsWith('/purchase-feed') ||
+    path.startsWith('/tournaments');
+
+  const isSettingActive =
+    path.startsWith('/users') ||
+    path.startsWith('/user-logs') ||
+    path.startsWith('/roles') ||
+    path.startsWith('/system-settings') ||
+    path.startsWith('/tags') ||
+    path.startsWith('/media-database') ||
+    path.startsWith('/casino-catalog') ||
+    path.startsWith('/sports-catalog') ||
+    path.startsWith('/http-debugger-console');
+
+  useEffect(() => {
+    if (isCRMActive) setCrmOpen(true);
+    if (isGameActive) setGameOpen(true);
+    if (isSettingActive) setSettingOpen(true);
+  }, [path]);
 
   return (
     <div
@@ -99,7 +130,6 @@ const Sidebar: FC = () => {
         collapsed ? 'w-[78px] min-w-[78px]' : 'w-[240px] min-w-[240px]'
       } bg-[#0d1b3e] border-r border-white/5 flex flex-col h-screen sticky top-0 overflow-y-auto thin-scrollbar transition-all duration-300`}
     >
-      {/* Header */}
       <div className="flex items-center justify-between px-4 pt-5 pb-3">
         {!collapsed && (
           <div className="flex items-center gap-2.5">
@@ -124,12 +154,10 @@ const Sidebar: FC = () => {
 
       {!collapsed && <div className="text-[9px] text-slate-600 px-4 mb-3">v2.11.0</div>}
 
-      {/* Create */}
       <button
         className={`mx-3.5 mb-4 flex items-center ${
           collapsed ? 'justify-center px-0' : 'gap-2 px-4'
         } border border-white/25 rounded-full py-2 text-white text-sm font-medium hover:bg-white/10 transition`}
-        type="button"
       >
         <PlusIcon />
         {!collapsed && 'Create'}
@@ -141,8 +169,7 @@ const Sidebar: FC = () => {
         </div>
       )}
 
-      {/* Menu */}
-      <nav className="py-2 overflow-y-auto thin-scrollbar scrollbar-hide">
+      <nav className="py-2 overflow-y-auto">
         <NavLink
           to="/dashboard"
           className={({ isActive }) => `${navItem} ${isActive ? active : inactive}`}
@@ -151,10 +178,10 @@ const Sidebar: FC = () => {
           {!collapsed && 'Dashboard'}
         </NavLink>
 
+        {/* CRM */}
         <button
           onClick={() => setCrmOpen(!crmOpen)}
-          className={`${navItem} ${inactive} w-full`}
-          type="button"
+          className={`${navItem} ${isCRMActive ? active : inactive} w-full`}
         >
           <CRMIcon />
           {!collapsed && 'CRM'}
@@ -163,21 +190,35 @@ const Sidebar: FC = () => {
 
         {!collapsed && crmOpen && (
           <div className="ml-6 border-l border-white/5">
-            <NavLink to="/crm/campaigns" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Campaigns</NavLink>
-            <NavLink to="/crm/analytics" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Analytics</NavLink>
-            <NavLink to="/crm/segments" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Segments</NavLink>
-            <NavLink to="/crm/templates" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Templates</NavLink>
-            <NavLink to="/crm/custom-triggers" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Custom Triggers</NavLink>
-            <NavLink to="/crm/frequency-cap" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Frequency Cap</NavLink>
-            <NavLink to="/crm/unsubscribe-reports" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Unsubscribe Reports</NavLink>
-            <NavLink to="/crm/player-data" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Player Data</NavLink>
+            {[
+              { to: '/crm/campaigns', label: 'Campaigns' },
+              { to: '/crm/analytics', label: 'Analytics' },
+              { to: '/crm/segments', label: 'Segments' },
+              { to: '/crm/templates', label: 'Templates' },
+              { to: '/crm/custom-triggers', label: 'Custom Triggers' },
+              { to: '/crm/frequency-cap', label: 'Frequency Cap' },
+              { to: '/crm/unsubscribe-reports', label: 'Unsubscribe Reports' },
+              { to: '/crm/player-data', label: 'Player Data' },
+            ].map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  `block px-4 py-2 text-sm ${
+                    isActive ? 'text-white' : 'text-slate-400 hover:text-white'
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
           </div>
         )}
 
+        {/* Gamification */}
         <button
           onClick={() => setGameOpen(!gameOpen)}
-          className={`${navItem} ${inactive} w-full`}
-          type="button"
+          className={`${navItem} ${isGameActive ? active : inactive} w-full`}
         >
           <GamificationIcon />
           {!collapsed && 'Gamification'}
@@ -186,25 +227,39 @@ const Sidebar: FC = () => {
 
         {!collapsed && gameOpen && (
           <div className="ml-6 border-l border-white/5">
-            <NavLink to="/missions" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Missions</NavLink>
-            <NavLink to="/mission-bundles" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Mission Bundles</NavLink>
-            <NavLink to="/ranks" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Ranks</NavLink>
-            <NavLink to="/token-rules-casino" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Token Rules (Casino)</NavLink>
-            <NavLink to="/token-rules-sports" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Token Rules (Sports)</NavLink>
-            <NavLink to="/xp-point-rules-casino" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">XP Point Rules (Casino)</NavLink>
-            <NavLink to="/xp-point-rules-sports" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">XP Point Rules (Sports)</NavLink>
-            <NavLink to="/player-categories" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Player Categories</NavLink>
-            <NavLink to="/reward-shop" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Reward Shop</NavLink>
-            <NavLink to="/prizeshark-catalog" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Prizeshark Catalog</NavLink>
-            <NavLink to="/purchase-feed" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Purchase Feed</NavLink>
-            <NavLink to="/tournaments" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Tournaments</NavLink>
+            {[
+              ['/missions', 'Missions'],
+              ['/mission-bundles', 'Mission Bundles'],
+              ['/ranks', 'Ranks'],
+              ['/token-rules-casino', 'Token Rules (Casino)'],
+              ['/token-rules-sports', 'Token Rules (Sports)'],
+              ['/xp-point-rules-casino', 'XP Point Rules (Casino)'],
+              ['/xp-point-rules-sports', 'XP Point Rules (Sports)'],
+              ['/player-categories', 'Player Categories'],
+              ['/reward-shop', 'Reward Shop'],
+              ['/prizeshark-catalog', 'Prizeshark Catalog'],
+              ['/purchase-feed', 'Purchase Feed'],
+              ['/tournaments', 'Tournaments'],
+            ].map(([to, label]) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  `block px-4 py-2 text-sm ${
+                    isActive ? 'text-white ' : 'text-slate-400 hover:text-white'
+                  }`
+                }
+              >
+                {label}
+              </NavLink>
+            ))}
           </div>
         )}
 
+        {/* Settings */}
         <button
           onClick={() => setSettingOpen(!settingOpen)}
-          className={`${navItem} ${inactive} w-full`}
-          type="button"
+          className={`${navItem} ${isSettingActive ? active : inactive} w-full`}
         >
           <SettingsIcon />
           {!collapsed && 'Settings'}
@@ -213,22 +268,36 @@ const Sidebar: FC = () => {
 
         {!collapsed && settingOpen && (
           <div className="ml-6 border-l border-white/5">
-            <NavLink to="/users" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">User Management</NavLink>
-            <NavLink to="/user-logs" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">User Logs</NavLink>
-            <NavLink to="/roles" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Roles</NavLink>
-            <NavLink to="/system-settings" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">System Settings</NavLink>
-            <NavLink to="/tags-gamification" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Tags (Gamification)</NavLink>
-            <NavLink to="/tags-crm" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Tags (CRM)</NavLink>
-            <NavLink to="/media-database" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Media Database</NavLink>
-            <NavLink to="/casino-catalog" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Casino Catalog</NavLink>
-            <NavLink to="/sports-catalog" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">Sports Catalog</NavLink>
-            <NavLink to="/http-debugger-console" className="block px-4 py-2 text-sm text-slate-400 hover:text-white">HTTP Debugger Console</NavLink>
+            {[
+              ['/users', 'User Management'],
+              ['/user-logs', 'User Logs'],
+              ['/roles', 'Roles'],
+              ['/system-settings', 'System Settings'],
+              ['/tags-gamification', 'Tags (Gamification)'],
+              ['/tags-crm', 'Tags (CRM)'],
+              ['/media-database', 'Media Database'],
+              ['/casino-catalog', 'Casino Catalog'],
+              ['/sports-catalog', 'Sports Catalog'],
+              ['/http-debugger-console', 'HTTP Debugger Console'],
+            ].map(([to, label]) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  `block px-4 py-2 text-sm ${
+                    isActive ? 'text-white' : 'text-slate-400 hover:text-white'
+                  }`
+                }
+              >
+                {label}
+              </NavLink>
+            ))}
           </div>
         )}
       </nav>
 
       {/* Bottom */}
-      <div className="mt-auto border-t border-white/5 px-4 py-4 text-slate-500 text-sm hover:text-slate-300 cursor-pointer flex items-center gap-2">
+      <div className="mt-auto border-t border-white/5 px-4 py-4 flex items-center gap-2 text-slate-500">
         <HelpIcon />
         {!collapsed && 'Help & Support'}
       </div>
