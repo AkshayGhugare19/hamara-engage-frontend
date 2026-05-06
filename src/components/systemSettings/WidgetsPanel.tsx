@@ -2,22 +2,20 @@ import type { SettingsRow } from '../../types/systemSettings.types';
 
 const rows: SettingsRow[] = [
   {
-    label: 'Account Status',
-    description: 'Set up how account statuses are represented in the UI.',
+    label: 'Widgets Configuration',
+    description: '',
     hasUpdate: true,
   },
   {
-    label: 'Payment Methods',
-    description: 'Set up which payment methods are available to the player.',
+    label: 'Sidebar Modules',
+    description: '',
     hasUpdate: true,
   },
   {
-    label: 'Enabled Languages',
-    description: 'These are the languages available for player translations.',
+    label: 'Theme',
+    description: '',
     hasUpdate: true,
   },
-  { label: 'Default Language', value: 'English' },
-  { label: 'Client Site', description: 'https://webstaging.hamara.com/', hasUpdate: true },
 ];
 
 const WidgetsPanel = () => (

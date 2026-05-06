@@ -54,3 +54,16 @@ export interface PaymentMethodErrors {
     displayName?: string;
   };
 }
+
+export interface OAuthClient {
+  id: string;
+  name: string;
+  description: string;
+  clientId: string;
+}
+
+export interface WebhookEndpoint {
+  id: string;
+  name: string;
+  url: string;
+}

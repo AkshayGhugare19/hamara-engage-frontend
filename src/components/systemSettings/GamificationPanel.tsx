@@ -27,7 +27,7 @@ const SPORTS_EVENT_OPTIONS = [
   { label: 'Winning Bets', value: 'Winning Bets' },
 ];
 
-const SettingRow = ({ row, value, onChange }: any) => {
+const GamificationSettingRow = ({ row, value, onChange }: any) => {
   const [toggle, setToggle] = useState(row.toggleDefault || false);
 
   return (
@@ -78,22 +78,47 @@ const Gamification = () => {
   });
 
   const rows = [
-    { label: 'Default Currency', type: 'dropdown', options: CURRENCY_OPTIONS, key: 'currency' },
-    { label: 'XP Points Settings', type: 'dropdown', options: BET_OPTIONS, key: 'xp' },
-    { label: 'Tokens Settings', type: 'dropdown', options: BET_OPTIONS, key: 'tokens' },
+    {
+      label: 'Default Currency',
+      description: '',
+      type: 'dropdown',
+      options: CURRENCY_OPTIONS,
+      key: 'currency',
+    },
+    {
+      label: 'XP Points Settings',
+      description: 'Select the setting for calculating XP points.',
+      type: 'dropdown',
+      options: BET_OPTIONS,
+      key: 'xp',
+    },
+    {
+      label: 'Tokens Settings',
+      description: 'Select the setting for calculating tokens.',
+      type: 'dropdown',
+      options: BET_OPTIONS,
+      key: 'tokens',
+    },
     {
       label: 'Player Category Settings',
+      description: 'Select the category for player ranking.',
       type: 'dropdown',
       options: PLAYER_CATEGORY_OPTIONS,
       key: 'playerCategory',
     },
     {
       label: 'Sports Event Type Contribution',
+      description: 'Select the type of sports events that contribute to gamification.',
       type: 'dropdown',
       options: SPORTS_EVENT_OPTIONS,
       key: 'sportsEvent',
     },
-    { label: 'Allow Ranks Downgrade', type: 'toggle', toggleDefault: false },
+    {
+      label: 'Allow Ranks Downgrade',
+      description: 'Allow players to be downgraded in rank.',
+      type: 'toggle',
+      toggleDefault: false,
+    },
   ];
 
   return (
@@ -101,7 +126,7 @@ const Gamification = () => {
       <h1 className="text-xl font-semibold text-white mb-6">Gamification</h1>
       <div className="space-y-2">
         {rows.map((row: any) => (
-          <SettingRow
+          <GamificationSettingRow
             key={row.label}
             row={row}
             value={values[row?.key as keyof typeof values]}
@@ -126,7 +151,7 @@ const LoyaltyOptOut = () => {
       <h1 className="text-xl text-white mb-6">Loyalty Opt Out</h1>
       <div className="space-y-2">
         {rows.map((row: any) => (
-          <SettingRow key={row.label} row={row} />
+          <GamificationSettingRow key={row.label} row={row} />
         ))}
       </div>
     </div>
@@ -144,7 +169,7 @@ const RewardShop = () => {
       <h1 className="text-xl text-white mb-6">Reward Shop</h1>
       <div className="space-y-2">
         {rows.map((row: any) => (
-          <SettingRow key={row.label} row={row} />
+          <GamificationSettingRow key={row.label} row={row} />
         ))}
       </div>
     </div>
@@ -159,7 +184,7 @@ const PlayerCard = () => {
       <h1 className="text-xl font-semibold text-white mb-6">Player Card</h1>
       <div className="space-y-2">
         {rows.map((row: any) => (
-          <SettingRow key={row.label} row={row} />
+          <GamificationSettingRow key={row.label} row={row} />
         ))}
       </div>
     </div>
