@@ -3,6 +3,9 @@ import DashboardLayout from '@/layout/DashboardLayout';
 import TagsGamificationSidePanal from '@/components/tagsGamification/TagsGamificationSidePanal';
 import { TagsGamificationsNavItemId } from '@/types/gamificationTags.types';
 import AllTagTableList from '@/tables/TagsGamifications/AllTagsTableList';
+import MissionTagTableList from '@/tables/TagsGamifications/MissionTagsTableList';
+import RanksTagsTableList from '@/tables/TagsGamifications/RanksTagsTableList';
+import RewardsShopTagsTableList from '@/tables/TagsGamifications/RewardShopTagsTableList';
 
 const TagsGamifications = () => {
   const [activeSection, setActiveSection] =
@@ -13,11 +16,11 @@ const TagsGamifications = () => {
       case 'all-gamification-tags':
         return <AllTagTableList />;
       case 'mission-gamification-tags':
-        return <div>Gamification</div>;
+        return <MissionTagTableList />;
       case 'ranks-gamification-tags':
-        return <div>Ranks</div>;
+        return <RanksTagsTableList />;
       case 'reward-shop-gamification-tags':
-        return <div>Reward Shop</div>;
+        return <RewardsShopTagsTableList />;
       case 'token-rules-gamification-tags':
         return <div>Token Rules</div>;
       case 'tournaments-gamification-tags':

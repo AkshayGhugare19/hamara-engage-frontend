@@ -54,14 +54,14 @@ const PlatformIntegrationPanel = () => {
   const [oauthClients, setOauthClients] = useState<OAuthClient[]>([
     {
       id: '1',
-      name: 'Moneytree Local',
+      name: 'Meratree Local',
       description: 'local development env',
       clientId: 'a32a081c-b4d3-4c69-aad5-47207c4dac2d',
     },
     {
       id: '2',
-      name: 'Gamanza QA',
-      description: 'Gamanza QA',
+      name: 'Hamara QA',
+      description: 'Hamara QA',
       clientId: '6c0100d8-dd37-48b4-914f-614dd3c368ec',
     },
     {
@@ -72,14 +72,14 @@ const PlatformIntegrationPanel = () => {
     },
     {
       id: '4',
-      name: 'staging-gamanza-mt-oauth',
-      description: 'staging-gamanza-mt-oauth',
+      name: 'staging-hamara-mt-oauth',
+      description: 'staging-hamara-mt-oauth',
       clientId: '684780ed-938c-49c7-a416-958a2bfb87d4',
     },
     {
       id: '5',
       name: 'CIM_Gamanza_QA',
-      description: 'Gamanza CIM Client ID',
+      description: 'Hamara CIM Client ID',
       clientId: 'e9555c62-61b5-4e0e-8720-5dcc249bc08d',
     },
   ]);
@@ -87,13 +87,13 @@ const PlatformIntegrationPanel = () => {
   const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([
     {
       id: '1',
-      name: 'Moneytree Dev Events',
-      url: 'https://api.royalstakes.webitlabs.dev/api/gamanza/api/event',
+      name: 'Meratree Dev Events',
+      url: 'https://api.royalstakes.webitlabs.dev/api/hamara/api/event',
     },
     {
       id: '2',
-      name: 'Moneytree Web Staging Events',
-      url: 'https://apistaging.moneytreegaming.com/api/gamanza/api/event',
+      name: 'Meratree Web Staging Events',
+      url: 'https://apistaging.meratreegaming.com/api/hamara/api/event',
     },
   ]);
 
