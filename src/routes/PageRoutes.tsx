@@ -12,6 +12,7 @@ import PublicRoute from './PublicRoute';
 import UserLogTableList from '@/pages/userLog/UserLogTableList';
 import SystemSettings from '@/pages/systemSettings/SystemSettings';
 import ProfilePage from '@/pages/profiles/ProfilePage';
+import TagsGamifications from '@/pages/tagsGamification/TagsGamifications';
 
 const PageRoutes: FC = () => {
   return (
@@ -32,6 +33,7 @@ const PageRoutes: FC = () => {
         <Route path="/user-logs" element={<UserLogTableList />} />
         <Route path="/roles" element={<RoleTableList />} />
         <Route path="/system-settings" element={<SystemSettings />} />
+        <Route path="/tags-gamification" element={<TagsGamifications />} />
       </Route>
 
       {/* 404 Page */}
