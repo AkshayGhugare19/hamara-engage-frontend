@@ -6,6 +6,9 @@ import AllTagTableList from '@/tables/TagsGamifications/AllTagsTableList';
 import MissionTagTableList from '@/tables/TagsGamifications/MissionTagsTableList';
 import RanksTagsTableList from '@/tables/TagsGamifications/RanksTagsTableList';
 import RewardsShopTagsTableList from '@/tables/TagsGamifications/RewardShopTagsTableList';
+import TokenRulesTagsTableList from '@/tables/TagsGamifications/TokenRulesTagsTableList';
+import TournamentsTagsTableList from '@/tables/TagsGamifications/TournamentsTagsTableList';
+import XpPointTagsTableList from '@/tables/TagsGamifications/XpPointTagsTableList';
 
 const TagsGamifications = () => {
   const [activeSection, setActiveSection] =
@@ -22,11 +25,11 @@ const TagsGamifications = () => {
       case 'reward-shop-gamification-tags':
         return <RewardsShopTagsTableList />;
       case 'token-rules-gamification-tags':
-        return <div>Token Rules</div>;
+        return <TokenRulesTagsTableList />;
       case 'tournaments-gamification-tags':
-        return <div>Tournaments</div>;
+        return <TournamentsTagsTableList />;
       case 'xp-points-gamification-tags':
-        return <div>XP Points</div>;
+        return <XpPointTagsTableList />;
       default:
         return null;
     }

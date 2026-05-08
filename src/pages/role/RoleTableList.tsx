@@ -152,7 +152,7 @@ const RoleTableList: FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-4 w-full">
+      <div className="px-4 w-full">
         <div className="flex justify-between items-center mb-6">
           <PageHeaderBreadcrumb
             title="Role Management"

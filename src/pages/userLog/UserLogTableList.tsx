@@ -88,7 +88,7 @@ const UserLogTableList: FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-4 w-full">
+      <div className="px-4 w-full">
         <div className="w-full flex items-center justify-between ">
           <PageHeaderBreadcrumb
             title="User Logs"

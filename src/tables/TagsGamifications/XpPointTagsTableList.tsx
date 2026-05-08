@@ -31,7 +31,7 @@ const categoryOptions = [
   { label: 'XP Points', value: 'xp-points' },
 ];
 
-const RewardsShopTagsTableList = () => {
+const XpPointTagsTableList = () => {
   const [allGamificationTags, setAllGamificationTags] = useState<GamificationTag[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -130,7 +130,7 @@ const RewardsShopTagsTableList = () => {
     <div className="px-4 w-full">
       <div className="flex justify-between items-center mb-6">
         <PageHeaderBreadcrumb
-          title="Reward Shop Tags"
+          title="XP Points Tags"
           items={[{ label: 'Home', clickable: true }, { label: 'Tags' }]}
         />
 
@@ -209,4 +209,4 @@ const RewardsShopTagsTableList = () => {
   );
 };
 
-export default RewardsShopTagsTableList;
+export default XpPointTagsTableList;
