@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance } from 'axios';
+import axios, { AxiosRequestConfig, type AxiosInstance } from 'axios';
 import type { ApiResponse } from '@/types';
 
 /**
@@ -42,20 +42,28 @@ api.interceptors.response.use(
  * Common Methods - generic-typed for full type-safety on responses
  */
 const apiService = {
-  get: <T = unknown>(url: string, params: Record<string, unknown> = {}): Promise<ApiResponse<T>> =>
-    api.get(url, { params }) as unknown as Promise<ApiResponse<T>>,
+  get: <T = unknown>(
+    url: string,
+    params?: unknown,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> =>
+    api.get(url, { params, ...config }) as unknown as Promise<ApiResponse<T>>,
 
-  post: <T = unknown>(url: string, payload: unknown = {}): Promise<ApiResponse<T>> =>
-    api.post(url, payload) as unknown as Promise<ApiResponse<T>>,
+  post: <T = unknown>(
+    url: string,
+    payload: unknown = {},
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> =>
+    api.post(url, payload, config) as unknown as Promise<ApiResponse<T>>,
 
-  patch: <T = unknown>(url: string, payload: unknown = {}): Promise<ApiResponse<T>> =>
-    api.patch(url, payload) as unknown as Promise<ApiResponse<T>>,
+  put: <T = unknown>(
+    url: string,
+    payload: unknown = {},
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> => api.put(url, payload, config) as unknown as Promise<ApiResponse<T>>,
 
-  put: <T = unknown>(url: string, payload: unknown = {}): Promise<ApiResponse<T>> =>
-    api.put(url, payload) as unknown as Promise<ApiResponse<T>>,
-
-  delete: <T = unknown>(url: string): Promise<ApiResponse<T>> =>
-    api.delete(url) as unknown as Promise<ApiResponse<T>>,
+  delete: <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> =>
+    api.delete(url, config) as unknown as Promise<ApiResponse<T>>,
 };
 
 export default apiService;
