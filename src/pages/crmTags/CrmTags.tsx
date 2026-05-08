@@ -2,7 +2,7 @@ import { useState } from 'react';
 import DashboardLayout from '@/layout/DashboardLayout';
 
 import { TagsCrmsNavItemId } from '@/types/crmTags.types';
-import CrmTagsSidePanal from '@/components/crmTags/CrmTagsSidePanal';
+import CrmTagsSidePanal from '@/components/sidePanals/crmTags/CrmTagsSidePanal';
 import AllTagTableList from '@/tables/CRMTags/AllTagsTableList';
 import MissionTagTableList from '@/tables/CRMTags/MissionTagsTableList';
 import RanksTagsTableList from '@/tables/CRMTags/RanksTagsTableList';

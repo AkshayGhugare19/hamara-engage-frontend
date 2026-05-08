@@ -1,4 +1,4 @@
-import type { NavItem, NavItemId } from '../../types/systemSettings.types';
+import type { NavItem, NavItemId } from '../../../types/systemSettings.types';
 import { Zap, Trophy, Flag, Send, Settings, LayoutGrid } from 'lucide-react';
 
 interface Props {

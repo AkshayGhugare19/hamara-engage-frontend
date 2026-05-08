@@ -6,7 +6,7 @@ import MissionPanel from '@/components/systemSettings/MissionsPanel';
 import CRMPanel from '@/components/systemSettings/CRMPanel';
 import PlatformIntegrationPanel from '@/components/systemSettings/PlatformIntegrationPanel';
 import WidgetsPanel from '@/components/systemSettings/WidgetsPanel';
-import SystemSettingsSidePanel from '@/components/systemSettings/SystemSettingsSidePanel';
+import SystemSettingsSidePanel from '@/components/sidePanals/systemSettings/SystemSettingsSidePanel';
 import DashboardLayout from '@/layout/DashboardLayout';
 
 const SystemSettings = () => {

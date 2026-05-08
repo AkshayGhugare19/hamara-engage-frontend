@@ -14,8 +14,8 @@ import {
   MediaDatabaseForm,
 } from '@/types/medaiDatabase.types';
 
-import CreateMediaDatabase from '../modals/mediaDatabase/CreateMediaDatabase';
-import MediaCard from './MediaCard';
+import CreateMediaDatabase from '../../components/modals/mediaDatabase/CreateMediaDatabase';
+import MediaCard from '../../components/mediaDatabase/MediaCard';
 
 const defaultForm: MediaDatabaseForm = {
   name: '',
@@ -26,7 +26,7 @@ const defaultForm: MediaDatabaseForm = {
   createdBy: '',
 };
 
-const AllMediaDatabase = () => {
+const BannersMediaDatabase = () => {
   const [allMedia, setAllMedia] = useState<MediaDatabase[]>(dummyMediaDatabase);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -150,8 +150,8 @@ const AllMediaDatabase = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <PageHeaderBreadcrumb
-          title="Media Database"
-          items={[{ label: 'Home', clickable: true }, { label: 'Media Database' }]}
+          title="Banners"
+          items={[{ label: 'Home', clickable: true }, { label: 'Banners' }]}
         />
 
         <button
@@ -202,4 +202,4 @@ const AllMediaDatabase = () => {
   );
 };
 
-export default AllMediaDatabase;
+export default BannersMediaDatabase;

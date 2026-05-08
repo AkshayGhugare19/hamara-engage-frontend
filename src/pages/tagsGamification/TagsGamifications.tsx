@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import DashboardLayout from '@/layout/DashboardLayout';
-import TagsGamificationSidePanal from '@/components/tagsGamification/TagsGamificationSidePanal';
+import TagsGamificationSidePanal from '@/components/sidePanals/tagsGamification/TagsGamificationSidePanal';
 import { TagsGamificationsNavItemId } from '@/types/gamificationTags.types';
 import AllTagTableList from '@/tables/TagsGamifications/AllTagsTableList';
 import MissionTagTableList from '@/tables/TagsGamifications/MissionTagsTableList';
