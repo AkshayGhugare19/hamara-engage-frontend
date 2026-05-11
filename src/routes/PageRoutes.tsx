@@ -15,6 +15,7 @@ import ProfilePage from '@/pages/profiles/ProfilePage';
 import TagsGamifications from '@/pages/tagsGamification/TagsGamifications';
 import CrmTags from '@/pages/crmTags/CrmTags';
 import MediaDatabase from '@/pages/mediaDatabase/MediaDatabase';
+import CasinoCatalogPage from '@/pages/casinoCatalog/CasinoCatalogPage';
 
 const PageRoutes: FC = () => {
   return (
@@ -38,6 +39,7 @@ const PageRoutes: FC = () => {
         <Route path="/tags-gamification" element={<TagsGamifications />} />
         <Route path="/tags-crm" element={<CrmTags />} />
         <Route path="/media-database" element={<MediaDatabase />} />
+        <Route path="/casino-catalog" element={<CasinoCatalogPage />} />
       </Route>
 
       {/* 404 Page */}
