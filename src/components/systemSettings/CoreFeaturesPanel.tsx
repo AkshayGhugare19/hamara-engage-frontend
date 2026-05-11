@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FC } from 'react';
+import { toast } from 'react-toastify';
 import type {
   SettingsRow,
   ModalKey,
@@ -8,55 +9,25 @@ import type {
   PaymentMethodErrors,
   ClientSiteForm,
   ClientSiteErrors,
+  LanguageDTO,
+  PaymentMethodDTO,
+  AccountStatusDTO,
 } from '../../types/systemSettings.types';
 import type { AccountStatusForm, AccountStatusErrors } from '../../types/accountStatus';
 import AvailableAccountStatusesModal from '../modals/settingsSystem/AvailableAccountStatusesModal';
 import PaymentMethodsModal from '../modals/settingsSystem/PaymentMethodsModal';
 import EnabledLanguagesModal from '../modals/settingsSystem/Enabledlanguagesmodal';
 import ClientSiteModal from '../modals/settingsSystem/ClientSiteModal';
-
-const rows: SettingsRow[] = [
-  {
-    label: 'Account Status',
-    description: 'Set up how account statuses are represented in the UI.',
-    hasUpdate: true,
-    modalKey: 'accountStatus',
-  },
-  {
-    label: 'Payment Methods',
-    description: 'Set up which payment methods are available to the player.',
-    hasUpdate: true,
-    modalKey: 'paymentMethods',
-  },
-  {
-    label: 'Enabled Languages',
-    description: 'These are the languages available for player translations.',
-    hasUpdate: true,
-    modalKey: 'enabledLanguages',
-  },
-  { label: 'Default Language', value: 'English' },
-  {
-    label: 'Client Site',
-    description: 'https://webstaging.hamara.com/',
-    hasUpdate: true,
-    modalKey: 'clientSite',
-  },
-];
-
-const DEFAULT_LANGUAGES: EnabledLanguagesForm['languages'] = [
-  { id: '1', language: 'German', flag: 'Germany', flagEmoji: '🇩🇪' },
-  { id: '2', language: 'French', flag: 'France', flagEmoji: '🇫🇷' },
-  { id: '3', language: 'Portuguese', flag: 'Portugal', flagEmoji: '🇵🇹' },
-  { id: '4', language: 'Turkish', flag: 'Turkey', flagEmoji: '🇹🇷' },
-  { id: '5', language: 'Finnish', flag: 'Finland', flagEmoji: '🇫🇮' },
-  { id: '6', language: 'Japanese', flag: 'Japan', flagEmoji: '🇯🇵' },
-  { id: '7', language: 'Korean', flag: 'South Korea', flagEmoji: '🇰🇷' },
-  { id: '8', language: 'English', flag: 'UK', flagEmoji: '🇬🇧' },
-  { id: '9', language: 'Chinese', flag: 'China', flagEmoji: '🇨🇳' },
-];
+import {
+  accountStatusesApi,
+  paymentMethodsApi,
+  languagesApi,
+  settingsApi,
+} from '@/services/systemSettings.service';
 
 const CoreFeaturesPanel: FC = () => {
   const [activeModal, setActiveModal] = useState<ModalKey>(null);
+  const [defaultLanguage, setDefaultLanguage] = useState<string>('—');
 
   // Account Status state
   const [accountStatusForm, setAccountStatusForm] = useState<AccountStatusForm>({ statuses: [] });
@@ -70,7 +41,7 @@ const CoreFeaturesPanel: FC = () => {
 
   // Enabled Languages state
   const [enabledLanguagesForm, setEnabledLanguagesForm] = useState<EnabledLanguagesForm>({
-    languages: DEFAULT_LANGUAGES,
+    languages: [],
   });
   const [savingLanguages, setSavingLanguages] = useState(false);
 
@@ -79,35 +50,154 @@ const CoreFeaturesPanel: FC = () => {
   const [clientSiteErrors] = useState<ClientSiteErrors>({});
   const [savingClientSite, setSavingClientSite] = useState(false);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const [stat, pm, langs, core] = await Promise.all([
+          accountStatusesApi.list(),
+          paymentMethodsApi.list(),
+          languagesApi.list(),
+          settingsApi.getByPanel('core'),
+        ]);
+
+        setAccountStatusForm({
+          statuses: (stat.data ?? []).map((s: AccountStatusDTO) => ({
+            id: s.id,
+            uniqueKey: s.unique_key,
+            displayName: s.display_name,
+            icon: s.icon ?? '',
+            color: s.color ?? '',
+          })),
+        });
+
+        setPaymentMethodForm({
+          methods: (pm.data ?? []).map((m: PaymentMethodDTO) => ({
+            id: m.id,
+            uniqueKey: m.unique_key,
+            displayName: m.display_name,
+          })),
+        });
+
+        const langList = (langs.data ?? []) as LanguageDTO[];
+        setEnabledLanguagesForm({
+          languages: langList.map((l) => ({
+            id: l.id,
+            language: l.language,
+            flag: l.flag ?? '',
+            flagEmoji: l.flag_emoji ?? '',
+          })),
+        });
+
+        const def = langList.find((l) => l.is_default);
+        setDefaultLanguage(def?.language ?? (core.data?.default_language as string) ?? '—');
+
+        setClientSiteForm({ url: (core.data?.client_site_url as string) ?? '' });
+      } catch {
+        toast.error('Failed to load core features settings');
+      }
+    })();
+  }, []);
+
+  const rows: SettingsRow[] = [
+    {
+      label: 'Account Status',
+      description: 'Set up how account statuses are represented in the UI.',
+      hasUpdate: true,
+      modalKey: 'accountStatus',
+    },
+    {
+      label: 'Payment Methods',
+      description: 'Set up which payment methods are available to the player.',
+      hasUpdate: true,
+      modalKey: 'paymentMethods',
+    },
+    {
+      label: 'Enabled Languages',
+      description: 'These are the languages available for player translations.',
+      hasUpdate: true,
+      modalKey: 'enabledLanguages',
+    },
+    { label: 'Default Language', value: defaultLanguage },
+    {
+      label: 'Client Site',
+      description: clientSiteForm.url || '—',
+      hasUpdate: true,
+      modalKey: 'clientSite',
+    },
+  ];
+
   const openModal = (key: ModalKey) => setActiveModal(key);
   const closeModal = () => setActiveModal(null);
 
   const handleAccountStatusSave = async () => {
     setSavingAccountStatus(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSavingAccountStatus(false);
-    closeModal();
+    try {
+      await accountStatusesApi.replaceAll(
+        accountStatusForm.statuses.map((s) => ({
+          unique_key: s.uniqueKey,
+          display_name: s.displayName,
+          icon: s.icon || null,
+          color: s.color || null,
+        }))
+      );
+      toast.success('Account statuses saved');
+      closeModal();
+    } catch {
+      toast.error('Failed to save account statuses');
+    } finally {
+      setSavingAccountStatus(false);
+    }
   };
 
   const handlePaymentMethodSave = async () => {
     setSavingPaymentMethod(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSavingPaymentMethod(false);
-    closeModal();
+    try {
+      await paymentMethodsApi.replaceAll(
+        paymentMethodForm.methods.map((m) => ({
+          unique_key: m.uniqueKey,
+          display_name: m.displayName,
+        }))
+      );
+      toast.success('Payment methods saved');
+      closeModal();
+    } catch {
+      toast.error('Failed to save payment methods');
+    } finally {
+      setSavingPaymentMethod(false);
+    }
   };
 
   const handleLanguagesSave = async () => {
     setSavingLanguages(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSavingLanguages(false);
-    closeModal();
+    try {
+      await languagesApi.replaceAll(
+        enabledLanguagesForm.languages.map((l) => ({
+          language: l.language,
+          flag: l.flag || null,
+          flag_emoji: l.flagEmoji || null,
+          is_default: false,
+        }))
+      );
+      toast.success('Languages saved');
+      closeModal();
+    } catch {
+      toast.error('Failed to save languages');
+    } finally {
+      setSavingLanguages(false);
+    }
   };
 
   const handleClientSiteSave = async () => {
     setSavingClientSite(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSavingClientSite(false);
-    closeModal();
+    try {
+      await settingsApi.upsert('core', 'client_site_url', clientSiteForm.url);
+      toast.success('Client site URL saved');
+      closeModal();
+    } catch {
+      toast.error('Failed to save client site URL');
+    } finally {
+      setSavingClientSite(false);
+    }
   };
 
   return (

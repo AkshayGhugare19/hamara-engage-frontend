@@ -1,6 +1,8 @@
 import { OAuthClient, WebhookEndpoint } from '@/types/systemSettings.types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { DeleteRecord } from '../DeleteRecord';
+import { oauthClientsApi, webhooksApi } from '@/services/systemSettings.service';
 
 const TrashIcon = () => (
   <svg
@@ -32,8 +34,6 @@ const InfoIcon = () => (
   </svg>
 );
 
-// ─── Delete Button ─────────────────────────────────────────────────────────────
-
 const DeleteButton = ({ onDelete }: { onDelete: () => void }) => (
   <button
     onClick={onDelete}
@@ -48,58 +48,38 @@ const DeleteButton = ({ onDelete }: { onDelete: () => void }) => (
   </button>
 );
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-
 const PlatformIntegrationPanel = () => {
-  const [oauthClients, setOauthClients] = useState<OAuthClient[]>([
-    {
-      id: '1',
-      name: 'Meratree Local',
-      description: 'local development env',
-      clientId: 'a32a081c-b4d3-4c69-aad5-47207c4dac2d',
-    },
-    {
-      id: '2',
-      name: 'Hamara QA',
-      description: 'Hamara QA',
-      clientId: '6c0100d8-dd37-48b4-914f-614dd3c368ec',
-    },
-    {
-      id: '3',
-      name: 'Celestin Token',
-      description: 'Celestin testing',
-      clientId: '6544d850-06cf-4872-af44-850a4b923fdc',
-    },
-    {
-      id: '4',
-      name: 'staging-hamara-mt-oauth',
-      description: 'staging-hamara-mt-oauth',
-      clientId: '684780ed-938c-49c7-a416-958a2bfb87d4',
-    },
-    {
-      id: '5',
-      name: 'CIM_Gamanza_QA',
-      description: 'Hamara CIM Client ID',
-      clientId: 'e9555c62-61b5-4e0e-8720-5dcc249bc08d',
-    },
-  ]);
+  const [oauthClients, setOauthClients] = useState<OAuthClient[]>([]);
+  const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([]);
 
-  const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([
-    {
-      id: '1',
-      name: 'Meratree Dev Events',
-      url: 'https://api.royalstakes.webitlabs.dev/api/hamara/api/event',
-    },
-    {
-      id: '2',
-      name: 'Meratree Web Staging Events',
-      url: 'https://apistaging.meratreegaming.com/api/hamara/api/event',
-    },
-  ]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const [oc, wh] = await Promise.all([oauthClientsApi.list(), webhooksApi.list()]);
+        setOauthClients(
+          (oc.data ?? []).map((c) => ({
+            id: c.id,
+            name: c.name,
+            description: c.description ?? '',
+            clientId: c.client_id,
+          }))
+        );
+        setWebhooks(
+          (wh.data ?? []).map((w) => ({
+            id: w.id,
+            name: w.name,
+            url: w.url,
+          }))
+        );
+      } catch {
+        toast.error('Failed to load platform integration settings');
+      }
+    })();
+  }, []);
 
   const removeOauthClient = (id: string) => {
     DeleteRecord({
-      endpoint: `/delete-oauth-client/${id}`,
+      endpoint: `/system-settings/oauth-clients/${id}`,
       successMessage: 'OAuth client deleted',
       onSuccess: () => setOauthClients((prev) => prev.filter((c) => c.id !== id)),
     });
@@ -107,11 +87,13 @@ const PlatformIntegrationPanel = () => {
 
   const removeWebhook = (id: string) => {
     DeleteRecord({
-      endpoint: `/delete-webhook/${id}`,
+      endpoint: `/system-settings/webhooks/${id}`,
       successMessage: 'Webhook deleted',
       onSuccess: () => setWebhooks((prev) => prev.filter((w) => w.id !== id)),
     });
   };
+
+  const stub = (label: string) => () => toast.info(`${label}: not yet implemented`);
 
   return (
     <div className="px-4 space-y-4 text-slate-200">
@@ -121,6 +103,7 @@ const PlatformIntegrationPanel = () => {
           <div className="flex items-center justify-between bg-slate-800 border-b border-slate-700 px-5 py-3">
             <span className="text-sm font-semibold text-slate-200">OAuth Clients</span>
             <button
+              onClick={stub('Add OAuth Client')}
               className="
                 bg-blue-600 hover:bg-blue-500 active:bg-blue-700
                 text-white text-xs font-semibold
@@ -130,6 +113,12 @@ const PlatformIntegrationPanel = () => {
               Add New
             </button>
           </div>
+
+          {oauthClients.length === 0 && (
+            <div className="bg-slate-900 px-5 py-6 text-center text-xs text-slate-500">
+              No OAuth clients configured.
+            </div>
+          )}
 
           {oauthClients.map((client, index) => (
             <div
@@ -161,6 +150,11 @@ const PlatformIntegrationPanel = () => {
             <span className="text-sm font-semibold text-slate-200">Webhook Endpoints</span>
             <InfoIcon />
           </div>
+          {webhooks.length === 0 && (
+            <div className="bg-slate-900 px-5 py-6 text-center text-xs text-slate-500">
+              No webhooks configured.
+            </div>
+          )}
           {webhooks.map((webhook, index) => (
             <div
               key={webhook.id}
@@ -193,6 +187,7 @@ const PlatformIntegrationPanel = () => {
           <div className="flex items-center justify-between bg-slate-900 px-5 py-4">
             <span className="text-sm font-semibold text-slate-200">Authentication API</span>
             <button
+              onClick={stub('Authentication API')}
               className="
                 bg-blue-600 hover:bg-blue-500 active:bg-blue-700
                 text-white text-xs font-semibold

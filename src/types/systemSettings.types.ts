@@ -67,3 +67,50 @@ export interface WebhookEndpoint {
   name: string;
   url: string;
 }
+
+// ─── API DTOs (snake_case from backend) ──────────────────────────────────────
+
+export type SettingsPanel = 'core' | 'gamification' | 'mission' | 'crm' | 'platform' | 'widgets';
+
+export interface SettingDTO {
+  panel: SettingsPanel;
+  key: string;
+  value: unknown;
+}
+
+export interface AccountStatusDTO {
+  id: string;
+  unique_key: string;
+  display_name: string;
+  icon: string | null;
+  color: string | null;
+}
+
+export interface PaymentMethodDTO {
+  id: string;
+  unique_key: string;
+  display_name: string;
+}
+
+export interface LanguageDTO {
+  id: string;
+  language: string;
+  flag: string | null;
+  flag_emoji: string | null;
+  is_default: boolean;
+}
+
+export interface OAuthClientDTO {
+  id: string;
+  name: string;
+  description: string | null;
+  client_id: string;
+  client_secret: string | null;
+}
+
+export interface WebhookDTO {
+  id: string;
+  name: string;
+  url: string;
+  is_enabled: boolean;
+}
