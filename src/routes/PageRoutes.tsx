@@ -16,6 +16,8 @@ import TagsGamifications from '@/pages/tagsGamification/TagsGamifications';
 import CrmTags from '@/pages/crmTags/CrmTags';
 import MediaDatabase from '@/pages/mediaDatabase/MediaDatabase';
 import CasinoCatalogPage from '@/pages/casinoCatalog/CasinoCatalogPage';
+import SportsCatalogPage from '@/pages/sportsCatalog/SportsCatalogPage';
+import HttpDebuggerConsolePage from '@/pages/httpDebugerConsole/HttpDebuggerConsolePage';
 
 const PageRoutes: FC = () => {
   return (
@@ -40,6 +42,8 @@ const PageRoutes: FC = () => {
         <Route path="/tags-crm" element={<CrmTags />} />
         <Route path="/media-database" element={<MediaDatabase />} />
         <Route path="/casino-catalog" element={<CasinoCatalogPage />} />
+        <Route path="/sports-catalog" element={<SportsCatalogPage />} />
+        <Route path="/http-debugger-console" element={<HttpDebuggerConsolePage />} />
       </Route>
 
       {/* 404 Page */}
