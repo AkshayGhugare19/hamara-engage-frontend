@@ -18,6 +18,8 @@ import MediaDatabase from '@/pages/mediaDatabase/MediaDatabase';
 import CasinoCatalogPage from '@/pages/casinoCatalog/CasinoCatalogPage';
 import SportsCatalogPage from '@/pages/sportsCatalog/SportsCatalogPage';
 import HttpDebuggerConsolePage from '@/pages/httpDebugerConsole/HttpDebuggerConsolePage';
+import GamificationModulePage from '@/components/gamification/GamificationModulePage';
+import { GAMIFICATION_MODULES, GAMIFICATION_ROUTES } from '@/config/gamificationModules';
 
 const PageRoutes: FC = () => {
   return (
@@ -44,6 +46,15 @@ const PageRoutes: FC = () => {
         <Route path="/casino-catalog" element={<CasinoCatalogPage />} />
         <Route path="/sports-catalog" element={<SportsCatalogPage />} />
         <Route path="/http-debugger-console" element={<HttpDebuggerConsolePage />} />
+
+        {/* Gamification feature modules */}
+        {GAMIFICATION_ROUTES.map(({ path, key }) => (
+          <Route
+            key={path}
+            path={path}
+            element={<GamificationModulePage config={GAMIFICATION_MODULES[key]} />}
+          />
+        ))}
       </Route>
 
       {/* 404 Page */}
