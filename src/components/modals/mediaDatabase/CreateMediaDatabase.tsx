@@ -15,6 +15,8 @@ interface Props {
   loading: boolean;
   closeCreateModal: () => void;
   categoryOptions: CategoryOption[];
+  /** When true the folder is fixed by the active tab and not editable. */
+  lockCategory?: boolean;
 }
 
 const CreateMediaDatabase: FC<Props> = ({
@@ -25,8 +27,11 @@ const CreateMediaDatabase: FC<Props> = ({
   loading,
   closeCreateModal,
   categoryOptions,
+  lockCategory = false,
 }) => {
   const folderSelected = !!form.category && form.category !== '';
+  const lockedLabel =
+    categoryOptions.find((o) => o.value === form.category)?.label ?? form.category;
 
   return (
     <div
@@ -49,18 +54,27 @@ const CreateMediaDatabase: FC<Props> = ({
 
         {/* Folder */}
         <div className="mb-4">
-          <ModalSelect
-            label="Folder"
-            value={form.category ?? ''}
-            options={categoryOptions}
-            onChange={(val) =>
-              setForm((prev) => ({
-                ...prev,
-                category: val,
-              }))
-            }
-            error={errors.category}
-          />
+          {lockCategory ? (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-slate-300 tracking-wide">Folder</label>
+              <div className="bg-slate-800/80 border border-slate-600/50 rounded-md px-3 py-2 text-sm text-slate-300">
+                {lockedLabel}
+              </div>
+            </div>
+          ) : (
+            <ModalSelect
+              label="Folder"
+              value={form.category ?? ''}
+              options={categoryOptions}
+              onChange={(val) =>
+                setForm((prev) => ({
+                  ...prev,
+                  category: val,
+                }))
+              }
+              error={errors.category}
+            />
+          )}
         </div>
 
         {/* Upload */}
