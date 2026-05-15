@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef, type FC } from 'react';
+import { useCallback, useEffect, useState, useRef, type FC } from 'react';
+import { toast } from 'react-toastify';
 import Pagination from '@/components/Pagination';
 import CreateCatalogCasinoGame from '@/components/modals/casinoCatalog/CreateCatalogCasinoGame';
 import {
@@ -6,14 +7,17 @@ import {
   CasinoCatalogGameFormData,
   CasinoCatalogGameFormErrors,
 } from '@/types/casinoCatalog.types';
-import { DUMMY_GAMES } from '@/dummydata/Casinocatalog';
 import { DeleteRecord } from '@/components/DeleteRecord';
+import type { ApiError } from '@/types';
+import { casinoGamesApi, type CasinoGameRecord } from '@/services/casinoCatalog.api';
 
 // ─── Badge styles ─────────────────────────────────────────────────────────────
 const DEVICE_BADGE: Record<string, string> = {
   mobile: 'bg-green-500/20 text-green-400',
   desktop: 'bg-blue-500/20 text-blue-400',
 };
+
+const LIMIT = 10;
 
 // ─── Default blank form ───────────────────────────────────────────────────────
 const BLANK_GAME_FORM: CasinoCatalogGameFormData = {
@@ -27,11 +31,21 @@ const BLANK_GAME_FORM: CasinoCatalogGameFormData = {
   deviceSupport: { mobile: false, desktop: false },
 };
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+// API record → UI model
+const toGame = (r: CasinoGameRecord): CasinoCatalogGame => ({
+  id: r.id,
+  name: r.name,
+  provider: r.provider,
+  category: r.category,
+  image: r.game_thumbnail ?? undefined,
+  gameThumbnail: r.game_thumbnail ?? undefined,
+  tournamentWidgetThumbnail: r.tournament_widget_thumbnail ?? undefined,
+  bonusBuyAllow: r.bonus_buy_allow,
+  deviceSupport: r.device_support ?? { mobile: false, desktop: false },
+});
+
 interface CasinoCatalogGamesTableListProps {
-  /** Controlled by parent: whether the "Create" modal should be open */
   isCreateModalOpen: boolean;
-  /** Parent calls this to signal the modal closed (so parent can reset its state) */
   onCreateModalClose: () => void;
 }
 
@@ -39,14 +53,14 @@ const CasinoCatalogGamesTableList: FC<CasinoCatalogGamesTableListProps> = ({
   isCreateModalOpen,
   onCreateModalClose,
 }) => {
-  const [allGames, setAllGames] = useState<CasinoCatalogGame[]>(DUMMY_GAMES);
   const [games, setGames] = useState<CasinoCatalogGame[]>([]);
 
   const [page, setPage] = useState(1);
-  const LIMIT = 10;
   const [totalPages, setTotalPages] = useState(1);
+  const [fetching, setFetching] = useState(false);
 
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterProvider, setFilterProvider] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
 
@@ -67,22 +81,40 @@ const CasinoCatalogGamesTableList: FC<CasinoCatalogGamesTableListProps> = ({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Debounce search box.
   useEffect(() => {
-    let filtered = allGames;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      filtered = filtered.filter(
-        (g) => g.name.toLowerCase().includes(q) || g.id.toLowerCase().includes(q)
-      );
-    }
-    if (filterProvider) filtered = filtered.filter((g) => g.provider === filterProvider);
-    if (filterCategory) filtered = filtered.filter((g) => g.category === filterCategory);
+    const t = setTimeout(() => {
+      setPage(1);
+      setDebouncedSearch(search.trim());
+    }, 400);
+    return () => clearTimeout(t);
+  }, [search]);
 
-    const total = Math.ceil(filtered.length / LIMIT) || 1;
-    setTotalPages(total);
-    const safePage = Math.min(page, total);
-    setGames(filtered.slice((safePage - 1) * LIMIT, safePage * LIMIT));
-  }, [allGames, search, filterProvider, filterCategory, page]);
+  const fetchGames = useCallback(async () => {
+    try {
+      setFetching(true);
+      const res = await casinoGamesApi.paginate({
+        page,
+        limit: LIMIT,
+        ...(debouncedSearch ? { search: debouncedSearch } : {}),
+        ...(filterProvider ? { provider: filterProvider } : {}),
+        ...(filterCategory ? { category: filterCategory } : {}),
+      });
+      if (res?.success && res?.data) {
+        setGames(res.data.data.map(toGame));
+        setTotalPages(res.data.pagination.totalPages || 1);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to load games');
+    } finally {
+      setFetching(false);
+    }
+  }, [page, debouncedSearch, filterProvider, filterCategory]);
+
+  useEffect(() => {
+    fetchGames();
+  }, [fetchGames]);
 
   useEffect(() => {
     if (isCreateModalOpen) {
@@ -111,18 +143,34 @@ const CasinoCatalogGamesTableList: FC<CasinoCatalogGamesTableListProps> = ({
     return Object.keys(errs).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validate()) return;
     setSaveLoading(true);
-    setTimeout(() => {
+    const payloadBody = {
+      name: form.name.trim(),
+      provider: form.provider.trim(),
+      category: form.category.trim(),
+      game_thumbnail: form.gameThumbnail?.trim() || null,
+      tournament_widget_thumbnail: form.tournamentWidgetThumbnail?.trim() || null,
+      bonus_buy_allow: form.bonusBuyAllow,
+      device_support: form.deviceSupport,
+    };
+    try {
       if (editId) {
-        setAllGames((prev) => prev.map((g) => (g.id === editId ? { ...g, ...form } : g)));
+        await casinoGamesApi.update(editId, payloadBody);
+        toast.success('Game updated successfully');
       } else {
-        setAllGames((prev) => [{ ...form, image: form.gameThumbnail }, ...prev]);
+        await casinoGamesApi.create({ id: form.id.trim(), ...payloadBody });
+        toast.success('Game created successfully');
       }
-      setSaveLoading(false);
       handleCloseModal();
-    }, 600);
+      if (!editId && page !== 1) setPage(1);
+      else fetchGames();
+    } catch (e) {
+      toast.error((e as ApiError).message || 'Failed to save game');
+    } finally {
+      setSaveLoading(false);
+    }
   };
 
   const handleEdit = (game: CasinoCatalogGame) => {
@@ -141,10 +189,12 @@ const CasinoCatalogGamesTableList: FC<CasinoCatalogGamesTableListProps> = ({
     setFormErrors({});
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = (id: string) => {
+    setOpenMenuId(null);
     DeleteRecord({
-      endpoint: `/tags-gamification/1`,
-      successMessage: 'Tag deleted',
+      endpoint: `/casino-catalog/games/${id}`,
+      successMessage: 'Game deleted',
+      onSuccess: fetchGames,
     });
   };
 
@@ -156,10 +206,7 @@ const CasinoCatalogGamesTableList: FC<CasinoCatalogGamesTableListProps> = ({
             className="w-full px-3 py-2 pl-9 bg-slate-800 border border-slate-700 rounded text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 text-slate-200"
             placeholder="Name or ID"
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
+            onChange={(e) => setSearch(e.target.value)}
           />
           <svg
             className="absolute left-3 top-2.5 w-4 h-4 text-slate-500"
@@ -242,7 +289,7 @@ const CasinoCatalogGamesTableList: FC<CasinoCatalogGamesTableListProps> = ({
             {games.length === 0 ? (
               <tr>
                 <td colSpan={7} className="p-6 text-center text-slate-400">
-                  No games found
+                  {fetching ? 'Loading…' : 'No games found'}
                 </td>
               </tr>
             ) : (
@@ -325,9 +372,7 @@ const CasinoCatalogGamesTableList: FC<CasinoCatalogGamesTableListProps> = ({
                         </button>
                         <button
                           className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-slate-700 flex items-center gap-2"
-                          onClick={() => {
-                            handleDeleteConfirm();
-                          }}
+                          onClick={() => handleDeleteConfirm(game.id)}
                         >
                           <svg
                             className="w-4 h-4"
@@ -366,15 +411,6 @@ const CasinoCatalogGamesTableList: FC<CasinoCatalogGamesTableListProps> = ({
         loading={saveLoading}
         editId={editId}
       />
-
-      {/* Delete Confirm Modal */}
-      {/* <ConfirmDeleteModal
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        loading={deleteLoading}
-        itemName={deleteTarget?.name}
-      /> */}
     </>
   );
 };

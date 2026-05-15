@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef, type FC } from 'react';
+import { useCallback, useEffect, useState, useRef, type FC } from 'react';
+import { toast } from 'react-toastify';
 import Pagination from '@/components/Pagination';
-
 import { DeleteRecord } from '@/components/DeleteRecord';
 import CreateSportCatalog from '@/components/modals/sportsCatalog/CreateSportsCatalog';
 import {
@@ -8,9 +8,11 @@ import {
   SportsCatalogSportItemFormData,
   SportsCatalogSportItemFormErrors,
 } from '@/types/sportsCatalog.types';
-import { DUMMY_SPORT_ITEMS } from '@/dummydata/SportCatalog';
+import type { ApiError } from '@/types';
+import { sportsApi } from '@/services/sportCatalog.api';
 
-const BLANK_FORM: SportsCatalogSportItem = { id: '', name: '' };
+const BLANK_FORM: SportsCatalogSportItemFormData = { id: '', name: '' };
+const LIMIT = 10;
 
 interface SportsCatalogSportsTableListProps {
   isCreateModalOpen: boolean;
@@ -21,14 +23,14 @@ const SportsCatalogSportsTableList: FC<SportsCatalogSportsTableListProps> = ({
   isCreateModalOpen,
   onCreateModalClose,
 }) => {
-  const [allCategories, setAllCategories] = useState<SportsCatalogSportItem[]>(DUMMY_SPORT_ITEMS);
-  const [categories, setCategories] = useState<SportsCatalogSportItem[]>([]);
+  const [sports, setSports] = useState<SportsCatalogSportItem[]>([]);
 
   const [page, setPage] = useState(1);
-  const LIMIT = 10;
   const [totalPages, setTotalPages] = useState(1);
+  const [fetching, setFetching] = useState(false);
 
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<SportsCatalogSportItemFormData>(BLANK_FORM);
@@ -47,18 +49,36 @@ const SportsCatalogSportsTableList: FC<SportsCatalogSportsTableListProps> = ({
   }, []);
 
   useEffect(() => {
-    let filtered = allCategories;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      filtered = filtered.filter(
-        (c) => c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q)
-      );
+    const t = setTimeout(() => {
+      setPage(1);
+      setDebouncedSearch(search.trim());
+    }, 400);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const fetchSports = useCallback(async () => {
+    try {
+      setFetching(true);
+      const res = await sportsApi.paginate({
+        page,
+        limit: LIMIT,
+        ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      });
+      if (res?.success && res?.data) {
+        setSports(res.data.data);
+        setTotalPages(res.data.pagination.totalPages || 1);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to load sports');
+    } finally {
+      setFetching(false);
     }
-    const total = Math.ceil(filtered.length / LIMIT) || 1;
-    setTotalPages(total);
-    const safePage = Math.min(page, total);
-    setCategories(filtered.slice((safePage - 1) * LIMIT, safePage * LIMIT));
-  }, [allCategories, search, page]);
+  }, [page, debouncedSearch]);
+
+  useEffect(() => {
+    fetchSports();
+  }, [fetchSports]);
 
   useEffect(() => {
     if (isCreateModalOpen) {
@@ -84,31 +104,40 @@ const SportsCatalogSportsTableList: FC<SportsCatalogSportsTableListProps> = ({
     return Object.keys(errs).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validate()) return;
     setSaveLoading(true);
-    setTimeout(() => {
+    try {
       if (editId) {
-        setAllCategories((prev) => prev.map((c) => (c.id === editId ? { ...c, ...form } : c)));
+        await sportsApi.update(editId, { name: form.name.trim() });
+        toast.success('Sport updated successfully');
       } else {
-        setAllCategories((prev) => [{ ...form }, ...prev]);
+        await sportsApi.create({ name: form.name.trim() });
+        toast.success('Sport created successfully');
       }
-      setSaveLoading(false);
       handleCloseModal();
-    }, 600);
+      if (!editId && page !== 1) setPage(1);
+      else fetchSports();
+    } catch (e) {
+      toast.error((e as ApiError).message || 'Failed to save sport');
+    } finally {
+      setSaveLoading(false);
+    }
   };
 
-  const handleEdit = (cat: SportsCatalogSportItem) => {
+  const handleEdit = (item: SportsCatalogSportItem) => {
     setOpenMenuId(null);
-    setEditId(cat.id);
-    setForm({ id: cat.id, name: cat.name });
+    setEditId(item.id);
+    setForm({ id: item.id, name: item.name });
     setFormErrors({});
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = (id: string) => {
+    setOpenMenuId(null);
     DeleteRecord({
-      endpoint: `/tags-gamification/1`,
-      successMessage: 'Tag deleted',
+      endpoint: `/sport-catalog/sports/${id}`,
+      successMessage: 'Sport deleted',
+      onSuccess: fetchSports,
     });
   };
 
@@ -118,12 +147,9 @@ const SportsCatalogSportsTableList: FC<SportsCatalogSportsTableListProps> = ({
         <div className="relative">
           <input
             className="w-full px-3 py-2 pl-9 bg-slate-800 border border-slate-700 rounded text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 text-slate-200"
-            placeholder="Name or ID"
+            placeholder="Name"
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
+            onChange={(e) => setSearch(e.target.value)}
           />
           <svg
             className="absolute left-3 top-2.5 w-4 h-4 text-slate-500"
@@ -150,23 +176,23 @@ const SportsCatalogSportsTableList: FC<SportsCatalogSportsTableListProps> = ({
             </tr>
           </thead>
           <tbody>
-            {categories.length === 0 ? (
+            {sports.length === 0 ? (
               <tr>
-                <td colSpan={3} className="p-6 text-center text-slate-400">
-                  No categories found
+                <td colSpan={2} className="p-6 text-center text-slate-400">
+                  {fetching ? 'Loading…' : 'No sports found'}
                 </td>
               </tr>
             ) : (
-              categories.map((cat) => (
+              sports.map((item) => (
                 <tr
-                  key={cat.id}
+                  key={item.id}
                   className="border-t border-slate-700 hover:bg-slate-800/50 transition-colors"
                 >
-                  <td className="p-3 font-medium text-blue-400">{cat.name}</td>
-                  <td className="p-3 relative" ref={openMenuId === cat.id ? menuRef : undefined}>
+                  <td className="p-3 font-medium text-blue-400">{item.name}</td>
+                  <td className="p-3 relative" ref={openMenuId === item.id ? menuRef : undefined}>
                     <button
                       className="p-1.5 rounded hover:bg-slate-700 transition-colors text-slate-400"
-                      onClick={() => setOpenMenuId(openMenuId === cat.id ? null : cat.id)}
+                      onClick={() => setOpenMenuId(openMenuId === item.id ? null : item.id)}
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <circle cx="12" cy="5" r="1.5" />
@@ -174,11 +200,11 @@ const SportsCatalogSportsTableList: FC<SportsCatalogSportsTableListProps> = ({
                         <circle cx="12" cy="19" r="1.5" />
                       </svg>
                     </button>
-                    {openMenuId === cat.id && (
+                    {openMenuId === item.id && (
                       <div className="absolute right-8 top-1 z-20 bg-slate-800 border border-slate-700 rounded shadow-lg min-w-[110px]">
                         <button
                           className="w-full text-left px-3 py-2 text-sm text-slate-200 hover:bg-slate-700 flex items-center gap-2"
-                          onClick={() => handleEdit(cat)}
+                          onClick={() => handleEdit(item)}
                         >
                           <svg
                             className="w-4 h-4 text-blue-400"
@@ -197,9 +223,7 @@ const SportsCatalogSportsTableList: FC<SportsCatalogSportsTableListProps> = ({
                         </button>
                         <button
                           className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-slate-700 flex items-center gap-2"
-                          onClick={() => {
-                            handleDeleteConfirm();
-                          }}
+                          onClick={() => handleDeleteConfirm(item.id)}
                         >
                           <svg
                             className="w-4 h-4"
@@ -238,14 +262,6 @@ const SportsCatalogSportsTableList: FC<SportsCatalogSportsTableListProps> = ({
         loading={saveLoading}
         editId={editId}
       />
-
-      {/* <ConfirmDeleteModal
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        loading={deleteLoading}
-        itemName={deleteTarget?.name}
-      /> */}
     </>
   );
 };

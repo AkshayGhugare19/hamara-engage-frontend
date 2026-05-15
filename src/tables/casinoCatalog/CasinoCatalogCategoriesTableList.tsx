@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef, type FC } from 'react';
+import { useCallback, useEffect, useState, useRef, type FC } from 'react';
+import { toast } from 'react-toastify';
 import Pagination from '@/components/Pagination';
 import CreateCatalogCasinoCategory from '@/components/modals/casinoCatalog/CreateCatalogCasinoCategory';
 import {
@@ -7,9 +8,11 @@ import {
   CasinoCatalogCategoryFormErrors,
 } from '@/types/casinoCatalog.types';
 import { DeleteRecord } from '@/components/DeleteRecord';
-import { DUMMY_CATEGORIES } from '@/dummydata/Casinocatalog';
+import type { ApiError } from '@/types';
+import { casinoCategoriesApi } from '@/services/casinoCatalog.api';
 
 const BLANK_FORM: CasinoCatalogCategoryFormData = { id: '', name: '' };
+const LIMIT = 10;
 
 interface CasinoCatalogCategoriesTableListProps {
   isCreateModalOpen: boolean;
@@ -20,14 +23,14 @@ const CasinoCatalogCategoriesTableList: FC<CasinoCatalogCategoriesTableListProps
   isCreateModalOpen,
   onCreateModalClose,
 }) => {
-  const [allCategories, setAllCategories] = useState<CasinoCatalogCategory[]>(DUMMY_CATEGORIES);
   const [categories, setCategories] = useState<CasinoCatalogCategory[]>([]);
 
   const [page, setPage] = useState(1);
-  const LIMIT = 10;
   const [totalPages, setTotalPages] = useState(1);
+  const [fetching, setFetching] = useState(false);
 
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<CasinoCatalogCategoryFormData>(BLANK_FORM);
@@ -46,18 +49,36 @@ const CasinoCatalogCategoriesTableList: FC<CasinoCatalogCategoriesTableListProps
   }, []);
 
   useEffect(() => {
-    let filtered = allCategories;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      filtered = filtered.filter(
-        (c) => c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q)
-      );
+    const t = setTimeout(() => {
+      setPage(1);
+      setDebouncedSearch(search.trim());
+    }, 400);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      setFetching(true);
+      const res = await casinoCategoriesApi.paginate({
+        page,
+        limit: LIMIT,
+        ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      });
+      if (res?.success && res?.data) {
+        setCategories(res.data.data);
+        setTotalPages(res.data.pagination.totalPages || 1);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to load categories');
+    } finally {
+      setFetching(false);
     }
-    const total = Math.ceil(filtered.length / LIMIT) || 1;
-    setTotalPages(total);
-    const safePage = Math.min(page, total);
-    setCategories(filtered.slice((safePage - 1) * LIMIT, safePage * LIMIT));
-  }, [allCategories, search, page]);
+  }, [page, debouncedSearch]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   useEffect(() => {
     if (isCreateModalOpen) {
@@ -84,18 +105,25 @@ const CasinoCatalogCategoriesTableList: FC<CasinoCatalogCategoriesTableListProps
     return Object.keys(errs).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validate()) return;
     setSaveLoading(true);
-    setTimeout(() => {
+    try {
       if (editId) {
-        setAllCategories((prev) => prev.map((c) => (c.id === editId ? { ...c, ...form } : c)));
+        await casinoCategoriesApi.update(editId, { name: form.name.trim() });
+        toast.success('Category updated successfully');
       } else {
-        setAllCategories((prev) => [{ ...form }, ...prev]);
+        await casinoCategoriesApi.create({ id: form.id.trim(), name: form.name.trim() });
+        toast.success('Category created successfully');
       }
-      setSaveLoading(false);
       handleCloseModal();
-    }, 600);
+      if (!editId && page !== 1) setPage(1);
+      else fetchCategories();
+    } catch (e) {
+      toast.error((e as ApiError).message || 'Failed to save category');
+    } finally {
+      setSaveLoading(false);
+    }
   };
 
   const handleEdit = (cat: CasinoCatalogCategory) => {
@@ -105,10 +133,12 @@ const CasinoCatalogCategoriesTableList: FC<CasinoCatalogCategoriesTableListProps
     setFormErrors({});
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = (id: string) => {
+    setOpenMenuId(null);
     DeleteRecord({
-      endpoint: `/tags-gamification/1`,
-      successMessage: 'Tag deleted',
+      endpoint: `/casino-catalog/categories/${id}`,
+      successMessage: 'Category deleted',
+      onSuccess: fetchCategories,
     });
   };
 
@@ -120,10 +150,7 @@ const CasinoCatalogCategoriesTableList: FC<CasinoCatalogCategoriesTableListProps
             className="w-full px-3 py-2 pl-9 bg-slate-800 border border-slate-700 rounded text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 text-slate-200"
             placeholder="Name or ID"
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
+            onChange={(e) => setSearch(e.target.value)}
           />
           <svg
             className="absolute left-3 top-2.5 w-4 h-4 text-slate-500"
@@ -154,7 +181,7 @@ const CasinoCatalogCategoriesTableList: FC<CasinoCatalogCategoriesTableListProps
             {categories.length === 0 ? (
               <tr>
                 <td colSpan={3} className="p-6 text-center text-slate-400">
-                  No categories found
+                  {fetching ? 'Loading…' : 'No categories found'}
                 </td>
               </tr>
             ) : (
@@ -199,9 +226,7 @@ const CasinoCatalogCategoriesTableList: FC<CasinoCatalogCategoriesTableListProps
                         </button>
                         <button
                           className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-slate-700 flex items-center gap-2"
-                          onClick={() => {
-                            handleDeleteConfirm();
-                          }}
+                          onClick={() => handleDeleteConfirm(cat.id)}
                         >
                           <svg
                             className="w-4 h-4"
@@ -240,14 +265,6 @@ const CasinoCatalogCategoriesTableList: FC<CasinoCatalogCategoriesTableListProps
         loading={saveLoading}
         editId={editId}
       />
-
-      {/* <ConfirmDeleteModal
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        loading={deleteLoading}
-        itemName={deleteTarget?.name}
-      /> */}
     </>
   );
 };
