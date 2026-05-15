@@ -1,12 +1,16 @@
 import type { Dispatch, FC, SetStateAction } from 'react';
-import { GamificationTagErrors, GamificationTagForm } from '@/types/gamificationTags.types';
+import {
+  GamificationTagCategory,
+  GamificationTagErrors,
+  GamificationTagForm,
+} from '@/types/gamificationTags.types';
 import ModalSelect from '@/components/dropdowns/ModalSelect';
 import ModalInput from '@/components/inputs/ModalInput';
 import ModalTextarea from '@/components/inputs/ModalTextarea';
 
 interface CategoryOption {
   label: string;
-  value: string;
+  value: GamificationTagCategory;
 }
 
 interface Props {
@@ -17,6 +21,8 @@ interface Props {
   loading: boolean;
   closeCreateModal: () => void;
   categoryOptions: CategoryOption[];
+  /** When true the category is fixed by the active tab and not editable. */
+  lockCategory?: boolean;
 }
 
 const CreateGamificationTag: FC<Props> = ({
@@ -27,7 +33,10 @@ const CreateGamificationTag: FC<Props> = ({
   loading,
   closeCreateModal,
   categoryOptions,
+  lockCategory = false,
 }) => {
+  const lockedLabel =
+    categoryOptions.find((o) => o.value === form.category)?.label ?? form.category;
   return (
     <div
       className="fixed inset-0 bg-black/70 flex justify-center items-center z-50"
@@ -49,13 +58,27 @@ const CreateGamificationTag: FC<Props> = ({
 
         {/* Category Dropdown */}
         <div className="mb-4">
-          <ModalSelect
-            label="Category"
-            value={form.category ?? ''}
-            options={categoryOptions}
-            onChange={(val) => setForm({ ...form, category: val })}
-            error={errors.category}
-          />
+          {lockCategory ? (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-slate-300 tracking-wide">Category</label>
+              <div className="bg-slate-800/80 border border-slate-600/50 rounded-md px-3 py-2 text-sm text-slate-300">
+                {lockedLabel}
+              </div>
+            </div>
+          ) : (
+            <ModalSelect
+              label="Category"
+              value={form.category ?? ''}
+              options={categoryOptions}
+              onChange={(val) =>
+                setForm({
+                  ...form,
+                  category: val as GamificationTagForm['category'],
+                })
+              }
+              error={errors.category}
+            />
+          )}
         </div>
 
         {/* Name Input */}
