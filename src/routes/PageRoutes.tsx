@@ -18,6 +18,9 @@ import MediaDatabase from '@/pages/mediaDatabase/MediaDatabase';
 import CasinoCatalogPage from '@/pages/casinoCatalog/CasinoCatalogPage';
 import SportsCatalogPage from '@/pages/sportsCatalog/SportsCatalogPage';
 import HttpDebuggerConsolePage from '@/pages/httpDebugerConsole/HttpDebuggerConsolePage';
+import CampaignTableList from '@/pages/campaign/CampaignTableList';
+import CampaignArchive from '@/pages/campaign/CampaignArchive';
+import CreateCampaign from '@/pages/campaign/CreateCampaign';
 import GamificationModulePage from '@/components/gamification/GamificationModulePage';
 import { GAMIFICATION_MODULES, GAMIFICATION_ROUTES } from '@/config/gamificationModules';
 
@@ -46,6 +49,11 @@ const PageRoutes: FC = () => {
         <Route path="/casino-catalog" element={<CasinoCatalogPage />} />
         <Route path="/sports-catalog" element={<SportsCatalogPage />} />
         <Route path="/http-debugger-console" element={<HttpDebuggerConsolePage />} />
+
+        {/* CRM Campaigns */}
+        <Route path="/crm/campaigns" element={<CampaignTableList />} />
+        <Route path="/crm/campaigns/archive" element={<CampaignArchive />} />
+        <Route path="/crm/campaigns/create" element={<CreateCampaign />} />
 
         {/* Gamification feature modules */}
         {GAMIFICATION_ROUTES.map(({ path, key }) => (
