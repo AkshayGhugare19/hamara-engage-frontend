@@ -55,7 +55,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
       <div className="bg-slate-900 p-8 rounded-xl w-96 space-y-4">
-        <h2 className="text-2xl font-bold">Login</h2>
+        <h2 className="text-2xl font-bold">Login Page</h2>
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
