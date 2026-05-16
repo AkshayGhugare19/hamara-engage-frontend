@@ -178,6 +178,14 @@ const Sidebar: FC = () => {
           {!collapsed && 'Dashboard'}
         </NavLink>
 
+        <NavLink
+          to="/documentation"
+          className={({ isActive }) => `${navItem} ${isActive ? active : inactive}`}
+        >
+          <HelpIcon />
+          {!collapsed && 'Documentation'}
+        </NavLink>
+
         {/* CRM */}
         <button
           onClick={() => setCrmOpen(!crmOpen)}
@@ -297,10 +305,17 @@ const Sidebar: FC = () => {
       </nav>
 
       {/* Bottom */}
-      <div className="mt-auto border-t border-white/5 px-4 py-4 flex items-center gap-2 text-slate-500">
+      <NavLink
+        to="/documentation"
+        className={({ isActive }) =>
+          `mt-auto border-t border-white/5 px-4 py-4 flex items-center gap-2 transition-colors ${
+            isActive ? 'text-blue-400' : 'text-slate-500 hover:text-slate-200'
+          }`
+        }
+      >
         <HelpIcon />
         {!collapsed && 'Help & Support'}
-      </div>
+      </NavLink>
     </div>
   );
 };

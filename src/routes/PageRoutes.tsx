@@ -34,6 +34,7 @@ import CreateCustomTrigger from '@/pages/customTrigger/CreateCustomTrigger';
 import FrequencyCapTableList from '@/pages/frequencyCap/FrequencyCapTableList';
 import UnsubscribeReportList from '@/pages/unsubscribeReport/UnsubscribeReportList';
 import PlayerDataPage from '@/pages/playerData/PlayerDataPage';
+import DocumentationPage from '@/pages/documentation/DocumentationPage';
 import GamificationModulePage from '@/components/gamification/GamificationModulePage';
 import { GAMIFICATION_MODULES, GAMIFICATION_ROUTES } from '@/config/gamificationModules';
 
@@ -52,6 +53,7 @@ const PageRoutes: FC = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/documentation" element={<DocumentationPage />} />
         <Route path="/users" element={<UserTableList />} />
         <Route path="/user-logs" element={<UserLogTableList />} />
         <Route path="/roles" element={<RoleTableList />} />

@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import { ApiError, PaginatedData } from '@/types';
 import { DeleteRecord } from '@/components/DeleteRecord';
 import {
+  GAMIFICATION_CATEGORY_OPTIONS,
   GamificationTag,
   GamificationTagErrors,
   GamificationTagForm,
@@ -17,19 +18,10 @@ const defaultForm: GamificationTagForm = {
   id: '',
   name: '',
   description: '',
-  category: 'ACTIVE',
-  createdAt: '',
-  createdBy: '',
+  category: '',
 };
 
-const categoryOptions = [
-  { label: 'Mission', value: 'mission' },
-  { label: 'Ranks', value: 'ranks' },
-  { label: 'Reward Shop', value: 'reward-shop' },
-  { label: 'Token Rules', value: 'token-rules' },
-  { label: 'Tournaments', value: 'tournaments' },
-  { label: 'XP Points', value: 'xp-points' },
-];
+const categoryOptions = GAMIFICATION_CATEGORY_OPTIONS;
 
 const AllTagTableList = () => {
   const [allGamificationTags, setAllGamificationTags] = useState<GamificationTag[]>([]);
@@ -89,8 +81,7 @@ const AllTagTableList = () => {
       const response = await apiService.post('/tags-gamification/add', {
         name: form.name,
         description: form.description,
-        createdBy: form.createdBy,
-        createdAt: form.createdAt,
+        category: form.category,
       });
       console.log('Create Tag response:', response);
       if (response?.success) {
@@ -175,8 +166,8 @@ const AllTagTableList = () => {
                   <td className="p-3">{role?.name}</td>
                   <td className="p-3">{role?.description}</td>
                   <td className="p-3">{role?.category}</td>
-                  <td className="p-3">{role?.createdAt}</td>
-                  <td className="p-3">{role?.createdBy}</td>
+                  <td className="p-3">{role?.created_at}</td>
+                  <td className="p-3">{role?.created_by}</td>
                   <td className="p-3 flex gap-2">
                     <button
                       className="bg-red-600 px-2 py-1 rounded text-xs"

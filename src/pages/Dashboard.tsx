@@ -1,6 +1,8 @@
-import type { FC, ReactNode } from 'react';
+import { useEffect, useState, type FC, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CalendarComponent from '@/components/Calendar';
 import DashboardLayout from '@/layout/DashboardLayout';
+import apiService from '@/services/api';
 
 interface ArrowRightProps {
   className?: string;
@@ -90,38 +92,89 @@ interface TileData {
   key: string;
   label: string;
   icon: ReactNode;
+  to: string;
 }
 
 const ROW1: TileData[] = [
-  { key: 'Analytics', label: 'Analytics', icon: icons.campaigns },
-  { key: 'campaigns', label: 'Campaigns', icon: icons.campaigns },
-  { key: 'customTriggers', label: 'Custom Triggers', icon: icons.customTriggers },
-  { key: 'frequencyCap', label: 'Frequency Cap', icon: icons.frequencyCap },
-  { key: 'missionBundles', label: 'Mission Bundles', icon: icons.missionBundles },
-  { key: 'missions', label: 'Missions', icon: icons.missions },
+  { key: 'Analytics', label: 'Analytics', icon: icons.campaigns, to: '/crm/analytics' },
+  { key: 'campaigns', label: 'Campaigns', icon: icons.campaigns, to: '/crm/campaigns' },
+  {
+    key: 'customTriggers',
+    label: 'Custom Triggers',
+    icon: icons.customTriggers,
+    to: '/crm/custom-triggers',
+  },
+  {
+    key: 'frequencyCap',
+    label: 'Frequency Cap',
+    icon: icons.frequencyCap,
+    to: '/crm/frequency-cap',
+  },
+  {
+    key: 'missionBundles',
+    label: 'Mission Bundles',
+    icon: icons.missionBundles,
+    to: '/mission-bundles',
+  },
+  { key: 'missions', label: 'Missions', icon: icons.missions, to: '/missions' },
 ];
 
 const ROW2: TileData[] = [
-  { key: 'playerCategories', label: 'Player Categories', icon: icons.playerData },
-  { key: 'playerData', label: 'Player Data', icon: icons.playerData },
-  { key: 'prizeshark', label: 'Prizeshark Catalog', icon: icons.prizeshark },
-  { key: 'purchaseFeed', label: 'Purchase Feed', icon: icons.purchaseFeed },
-  { key: 'ranks', label: 'Ranks', icon: icons.ranks },
-  { key: 'rewardShop', label: 'Reward Shop', icon: icons.rewardShop },
+  {
+    key: 'playerCategories',
+    label: 'Player Categories',
+    icon: icons.playerData,
+    to: '/player-categories',
+  },
+  { key: 'playerData', label: 'Player Data', icon: icons.playerData, to: '/crm/player-data' },
+  {
+    key: 'prizeshark',
+    label: 'Prizeshark Catalog',
+    icon: icons.prizeshark,
+    to: '/prizeshark-catalog',
+  },
+  { key: 'purchaseFeed', label: 'Purchase Feed', icon: icons.purchaseFeed, to: '/purchase-feed' },
+  { key: 'ranks', label: 'Ranks', icon: icons.ranks, to: '/ranks' },
+  { key: 'rewardShop', label: 'Reward Shop', icon: icons.rewardShop, to: '/reward-shop' },
 ];
 
 const ROW3: TileData[] = [
-  { key: 'segments', label: 'Segments', icon: icons.playerData },
-  { key: 'templates', label: 'Templates', icon: icons.playerData },
-  { key: 'tokenRulseCasino', label: 'Token Rules Casino', icon: icons.prizeshark },
-  { key: 'tokenRulseSuports', label: 'Token Rules Support', icon: icons.prizeshark },
-  { key: 'tournaments', label: 'Tournaments', icon: icons.ranks },
-  { key: 'unsubscribeReports', label: 'Unsubscribe Reports', icon: icons.rewardShop },
+  { key: 'segments', label: 'Segments', icon: icons.playerData, to: '/crm/segments' },
+  { key: 'templates', label: 'Templates', icon: icons.playerData, to: '/crm/templates' },
+  {
+    key: 'tokenRulseCasino',
+    label: 'Token Rules Casino',
+    icon: icons.prizeshark,
+    to: '/token-rules-casino',
+  },
+  {
+    key: 'tokenRulseSuports',
+    label: 'Token Rules Support',
+    icon: icons.prizeshark,
+    to: '/token-rules-sports',
+  },
+  { key: 'tournaments', label: 'Tournaments', icon: icons.ranks, to: '/tournaments' },
+  {
+    key: 'unsubscribeReports',
+    label: 'Unsubscribe Reports',
+    icon: icons.rewardShop,
+    to: '/crm/unsubscribe-reports',
+  },
 ];
 
 const ROW4: TileData[] = [
-  { key: 'xpPointRulesCasino', label: 'XP Point Rules Casino', icon: icons.playerData },
-  { key: 'xpPointRulesSupports', label: 'XP Point Rules Supports', icon: icons.playerData },
+  {
+    key: 'xpPointRulesCasino',
+    label: 'XP Point Rules Casino',
+    icon: icons.playerData,
+    to: '/xp-point-rules-casino',
+  },
+  {
+    key: 'xpPointRulesSupports',
+    label: 'XP Point Rules Supports',
+    icon: icons.playerData,
+    to: '/xp-point-rules-sports',
+  },
 ];
 
 /* ── Tile ── */
@@ -150,19 +203,40 @@ const Tile: FC<TileProps> = ({ icon, label, onClick }) => {
 /* ── Tile Row ── */
 interface TileRowProps {
   tiles: TileData[];
+  onTileClick: (to: string) => void;
 }
 
-const TileRow: FC<TileRowProps> = ({ tiles }) => {
+const TileRow: FC<TileRowProps> = ({ tiles, onTileClick }) => {
   return (
     <div className="grid grid-cols-6 gap-2.5">
       {tiles.map((t) => (
-        <Tile key={t.key} icon={t.icon} label={t.label} />
+        <Tile key={t.key} icon={t.icon} label={t.label} onClick={() => onTileClick(t.to)} />
       ))}
     </div>
   );
 };
 
 const Dashboard: FC = () => {
+  const navigate = useNavigate();
+  const [firstName, setFirstName] = useState<string>('');
+
+  useEffect(() => {
+    let active = true;
+    apiService
+      .get<{ first_name?: string }>('/users/me')
+      .then((res) => {
+        if (active && res?.success && res.data?.first_name) {
+          setFirstName(res.data.first_name);
+        }
+      })
+      .catch(() => {
+        /* keep generic greeting on failure */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <DashboardLayout>
       <div className="w-full p-4">
@@ -175,7 +249,7 @@ const Dashboard: FC = () => {
           >
             <div>
               <h1 className="text-3xl font-bold text-white">
-                Welcome back <span className="text-blue-400">Akshay</span>
+                Welcome back <span className="text-blue-400">{firstName || 'there'}</span>
               </h1>
               <p className="text-slate-500 text-sm mt-1">Let&apos;s get to work.</p>
               <div className="mt-20 w-full text-center">
@@ -192,13 +266,13 @@ const Dashboard: FC = () => {
           </div>
         </div>
         <div className="w-full mt-4">
-          <TileRow tiles={ROW1} />
+          <TileRow tiles={ROW1} onTileClick={navigate} />
           <div className="my-4" />
-          <TileRow tiles={ROW2} />
+          <TileRow tiles={ROW2} onTileClick={navigate} />
           <div className="my-4" />
-          <TileRow tiles={ROW3} />
+          <TileRow tiles={ROW3} onTileClick={navigate} />
           <div className="my-4" />
-          <TileRow tiles={ROW4} />
+          <TileRow tiles={ROW4} onTileClick={navigate} />
         </div>
       </div>
     </DashboardLayout>
