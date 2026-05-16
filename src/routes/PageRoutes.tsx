@@ -25,6 +25,9 @@ import AnalyticsPage from '@/pages/analytics/AnalyticsPage';
 import SegmentTableList from '@/pages/segment/SegmentTableList';
 import SegmentArchive from '@/pages/segment/SegmentArchive';
 import CreateSegment from '@/pages/segment/CreateSegment';
+import TemplateTableList from '@/pages/template/TemplateTableList';
+import TemplateArchive from '@/pages/template/TemplateArchive';
+import CreateTemplate from '@/pages/template/CreateTemplate';
 import GamificationModulePage from '@/components/gamification/GamificationModulePage';
 import { GAMIFICATION_MODULES, GAMIFICATION_ROUTES } from '@/config/gamificationModules';
 
@@ -64,6 +67,11 @@ const PageRoutes: FC = () => {
         <Route path="/crm/segments" element={<SegmentTableList />} />
         <Route path="/crm/segments/archive" element={<SegmentArchive />} />
         <Route path="/crm/segments/create" element={<CreateSegment />} />
+
+        {/* CRM Templates */}
+        <Route path="/crm/templates" element={<TemplateTableList />} />
+        <Route path="/crm/templates/archive" element={<TemplateArchive />} />
+        <Route path="/crm/templates/create" element={<CreateTemplate />} />
 
         {/* Gamification feature modules */}
         {GAMIFICATION_ROUTES.map(({ path, key }) => (
