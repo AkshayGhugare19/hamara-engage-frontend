@@ -1,4 +1,13 @@
-export type ThemeName = 'dark' | 'light' | 'white' | 'thin' | 'midnight';
+export type ThemeName =
+  | 'dark'
+  | 'light'
+  | 'white'
+  | 'thin'
+  | 'midnight'
+  | 'slate'
+  | 'ocean'
+  | 'forest'
+  | 'contrast';
 
 export interface UserProfile {
   id: string;
@@ -30,11 +39,15 @@ export interface ApiUser {
 }
 
 export const THEME_OPTIONS: { value: ThemeName; label: string; swatch: string }[] = [
-  { value: 'dark', label: 'Dark', swatch: '#0d1b3e' },
+  { value: 'dark', label: 'Dark', swatch: '#0f172a' },
   { value: 'midnight', label: 'Midnight', swatch: '#020617' },
+  { value: 'thin', label: 'Thin', swatch: '#1e2533' },
   { value: 'light', label: 'Light', swatch: '#e2e8f0' },
   { value: 'white', label: 'White', swatch: '#ffffff' },
-  { value: 'thin', label: 'Thin', swatch: '#1e293b' },
+  { value: 'slate', label: 'Slate', swatch: '#3f4856' },
+  { value: 'ocean', label: 'Ocean', swatch: '#082f49' },
+  { value: 'forest', label: 'Forest', swatch: '#052e1b' },
+  { value: 'contrast', label: 'High Contrast', swatch: '#000000' },
 ];
 
 export const TIMEZONE_OPTIONS: string[] = [
