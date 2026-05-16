@@ -28,6 +28,9 @@ import CreateSegment from '@/pages/segment/CreateSegment';
 import TemplateTableList from '@/pages/template/TemplateTableList';
 import TemplateArchive from '@/pages/template/TemplateArchive';
 import CreateTemplate from '@/pages/template/CreateTemplate';
+import CustomTriggerTableList from '@/pages/customTrigger/CustomTriggerTableList';
+import CustomTriggerArchive from '@/pages/customTrigger/CustomTriggerArchive';
+import CreateCustomTrigger from '@/pages/customTrigger/CreateCustomTrigger';
 import GamificationModulePage from '@/components/gamification/GamificationModulePage';
 import { GAMIFICATION_MODULES, GAMIFICATION_ROUTES } from '@/config/gamificationModules';
 
@@ -72,6 +75,11 @@ const PageRoutes: FC = () => {
         <Route path="/crm/templates" element={<TemplateTableList />} />
         <Route path="/crm/templates/archive" element={<TemplateArchive />} />
         <Route path="/crm/templates/create" element={<CreateTemplate />} />
+
+        {/* CRM Custom Triggers */}
+        <Route path="/crm/custom-triggers" element={<CustomTriggerTableList />} />
+        <Route path="/crm/custom-triggers/archive" element={<CustomTriggerArchive />} />
+        <Route path="/crm/custom-triggers/create" element={<CreateCustomTrigger />} />
 
         {/* Gamification feature modules */}
         {GAMIFICATION_ROUTES.map(({ path, key }) => (
