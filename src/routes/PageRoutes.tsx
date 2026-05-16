@@ -22,6 +22,9 @@ import CampaignTableList from '@/pages/campaign/CampaignTableList';
 import CampaignArchive from '@/pages/campaign/CampaignArchive';
 import CreateCampaign from '@/pages/campaign/CreateCampaign';
 import AnalyticsPage from '@/pages/analytics/AnalyticsPage';
+import SegmentTableList from '@/pages/segment/SegmentTableList';
+import SegmentArchive from '@/pages/segment/SegmentArchive';
+import CreateSegment from '@/pages/segment/CreateSegment';
 import GamificationModulePage from '@/components/gamification/GamificationModulePage';
 import { GAMIFICATION_MODULES, GAMIFICATION_ROUTES } from '@/config/gamificationModules';
 
@@ -56,6 +59,11 @@ const PageRoutes: FC = () => {
         <Route path="/crm/campaigns/archive" element={<CampaignArchive />} />
         <Route path="/crm/campaigns/create" element={<CreateCampaign />} />
         <Route path="/crm/analytics" element={<AnalyticsPage />} />
+
+        {/* CRM Segments */}
+        <Route path="/crm/segments" element={<SegmentTableList />} />
+        <Route path="/crm/segments/archive" element={<SegmentArchive />} />
+        <Route path="/crm/segments/create" element={<CreateSegment />} />
 
         {/* Gamification feature modules */}
         {GAMIFICATION_ROUTES.map(({ path, key }) => (
