@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, type FC } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { ApiResponse } from '@/types';
 import apiService from '@/services/api';
+import type { ThemeName } from '@/types/profile';
 import { useNavigate } from 'react-router-dom';
 
 const SearchIcon: FC = () => (
@@ -31,6 +33,7 @@ const ChevronDown: FC<ChevronDownProps> = ({ open }) => (
 
 const Header: FC = () => {
   const { logout } = useAuth();
+  const { applyTheme } = useTheme();
   const navigate = useNavigate();
   const [open, setOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -51,6 +54,10 @@ const Header: FC = () => {
       const response = await apiService.get<ApiResponse<any>>('/users/me');
       if (response?.success) {
         setLoggedInUser(response.data);
+        const userTheme = (response.data as { theme?: ThemeName })?.theme;
+        if (userTheme) {
+          applyTheme(userTheme);
+        }
       } else {
         console.error('Failed to fetch logged-in user:', response?.message || 'Unknown error');
       }
@@ -74,7 +81,7 @@ const Header: FC = () => {
     getLoggedInUser();
   }, []);
   return (
-    <div className="sticky top-0 z-50 h-14 px-6 flex items-center gap-4 border-b border-white/5 bg-[#0d1b3e]">
+    <div className="flex-shrink-0 sticky top-0 z-50 h-14 px-6 flex items-center gap-4 border-b border-white/5 bg-[#0d1b3e]">
       {/* Date Time */}
       <div className="flex items-center gap-4 text-xs text-slate-500">
         <span>{utcStr}</span>

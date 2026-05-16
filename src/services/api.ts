@@ -62,6 +62,13 @@ const apiService = {
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> => api.put(url, payload, config) as unknown as Promise<ApiResponse<T>>,
 
+  patch: <T = unknown>(
+    url: string,
+    payload: unknown = {},
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> =>
+    api.patch(url, payload, config) as unknown as Promise<ApiResponse<T>>,
+
   delete: <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> =>
     api.delete(url, config) as unknown as Promise<ApiResponse<T>>,
 };

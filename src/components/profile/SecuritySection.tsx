@@ -4,10 +4,11 @@ import ToggleSwitch from './ToggleSwitch';
 
 interface Props {
   security: SecuritySettings;
+  onChangePassword: () => void;
   onToggle2FA: () => void;
 }
 
-const SecuritySection = ({ security, onToggle2FA }: Props) => (
+const SecuritySection = ({ security, onChangePassword, onToggle2FA }: Props) => (
   <div>
     <h2 className="text-lg font-semibold text-slate-100 mb-4">Security</h2>
     <div className="space-y-2">
@@ -15,13 +16,18 @@ const SecuritySection = ({ security, onToggle2FA }: Props) => (
         label="Password"
         value="••••••••••"
         action={
-          <button className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-4 py-1.5 rounded-full transition-colors whitespace-nowrap">
+          <button
+            type="button"
+            onClick={onChangePassword}
+            className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-4 py-1.5 rounded-full transition-colors whitespace-nowrap"
+          >
             Change Password
           </button>
         }
       />
       <ProfileInfoRow
         label="Two-Factor Authentication"
+        value={security.twoFactorEnabled ? 'Enabled' : 'Disabled'}
         action={<ToggleSwitch enabled={security.twoFactorEnabled} onToggle={onToggle2FA} />}
       />
       <div className="bg-slate-800 border border-slate-700 rounded-lg px-5 py-4">

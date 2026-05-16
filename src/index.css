@@ -10,6 +10,44 @@ body {
   min-height: 100vh;
 }
 
+/* ------------------------------------------------------------------ */
+/* Per-user themes. The whole app is built with a fixed dark palette,  */
+/* so themes are applied as a root-level color transform driven by the */
+/* data-theme attribute set on <html> by ThemeContext.                 */
+/* ------------------------------------------------------------------ */
+html[data-theme='dark'] #root {
+  filter: none;
+}
+
+html[data-theme='midnight'] #root {
+  filter: brightness(0.78) saturate(1.1);
+}
+
+html[data-theme='thin'] #root {
+  filter: brightness(1.12) saturate(0.82);
+}
+
+html[data-theme='light'] #root {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+html[data-theme='white'] #root {
+  filter: invert(1) hue-rotate(180deg) brightness(1.06);
+}
+
+html[data-theme='light'] body,
+html[data-theme='white'] body {
+  background: #e2e8f0;
+}
+
+/* Re-invert media so photos/logos keep their true colors in light modes */
+html[data-theme='light'] #root img,
+html[data-theme='light'] #root video,
+html[data-theme='white'] #root img,
+html[data-theme='white'] #root video {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 /* Thin Scrollbar */
 .thin-scrollbar {
   scrollbar-width: thin;
