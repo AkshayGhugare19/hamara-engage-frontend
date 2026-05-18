@@ -47,6 +47,8 @@ import RewardShopPage from '@/pages/gamification/RewardShopPage';
 import PrizesharkCatalogPage from '@/pages/gamification/PrizesharkCatalogPage';
 import PurchaseFeedPage from '@/pages/gamification/PurchaseFeedPage';
 import TournamentsPage from '@/pages/gamification/TournamentsPage';
+import PlayerTableList from '@/pages/players/PlayerTableList';
+import PlayerProfilePage from '@/pages/players/PlayerProfilePage';
 
 const PageRoutes: FC = () => {
   return (
@@ -64,6 +66,10 @@ const PageRoutes: FC = () => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/documentation" element={<DocumentationPage />} />
+
+        {/* Players */}
+        <Route path="/players" element={<PlayerTableList />} />
+        <Route path="/players/:id" element={<PlayerProfilePage />} />
 
         {/* CRM Routes */}
         <Route path="/crm" element={<Navigate to="/crm/campaigns" replace />} />
