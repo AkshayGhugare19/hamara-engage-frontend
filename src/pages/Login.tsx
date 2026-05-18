@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/context/AuthContext';
 import apiService from '@/services/api';
+import { encryptPassword } from '@/utils/crypto';
 import ButtonLoader from '@/components/ButtonLoader';
 import type { ApiError, LoginResponseData } from '@/types';
 
@@ -17,9 +18,10 @@ const Login = () => {
     e.preventDefault();
     try {
       setLoading(true);
+      const securePassword = await encryptPassword(password);
       const response = await apiService.post<LoginResponseData>('/auth/login', {
         email,
-        password,
+        password: securePassword,
       });
       console.log('Login response:', response);
       if (response?.success) {
