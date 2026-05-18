@@ -223,10 +223,18 @@ export const GAMIFICATION_MODULES: Record<string, GamificationModuleConfig> = {
       NAME_COL,
       {
         header: 'Levels',
-        render: (r) =>
-          r.data?.level_from && r.data?.level_to
+        render: (r) => {
+          const lvls =
+            (r.data?.levels as { xp_start?: number; xp_end?: number }[] | undefined) ?? [];
+          if (lvls.length) {
+            const start = lvls[0]?.xp_start ?? 0;
+            const end = lvls[lvls.length - 1]?.xp_end ?? 0;
+            return `${lvls.length} levels (${start} – ${end} XP)`;
+          }
+          return r.data?.level_from && r.data?.level_to
             ? `${r.data.level_from} - ${r.data.level_to}`
-            : dash(null),
+            : dash(null);
+        },
       },
       BadgeCol('Rewards', 'reward_type'),
       TAGS_COL,
@@ -245,11 +253,10 @@ export const GAMIFICATION_MODULES: Record<string, GamificationModuleConfig> = {
       },
       {
         key: 'levels',
-        title: 'Leave Details',
-        fields: [
-          { name: 'level_from', label: 'Level From', type: 'number', half: true },
-          { name: 'level_to', label: 'Level To', type: 'number', half: true },
-        ],
+        title: 'Levels & XP Ranges',
+        subtitle:
+          'Define each level inside this rank with its XP start/end window and an optional per-level reward. A player’s level & rank are recomputed from these XP windows.',
+        fields: [{ name: 'levels', label: 'Levels', type: 'levels' }],
       },
       {
         key: 'rewards',

@@ -7,7 +7,26 @@ export type FieldType =
   | 'select'
   | 'multiselect'
   | 'switch'
-  | 'tags';
+  | 'tags'
+  | 'levels';
+
+/** One configured level inside a Rank (stored in data.levels[]). */
+export interface RankLevel {
+  level: number;
+  xp_start: number;
+  xp_end: number;
+  reward_type?: string;
+  reward_value?: number;
+}
+
+/** Reward types selectable per level (kept in sync with the rank-wide reward step). */
+export const LEVEL_REWARD_TYPES: FieldOption[] = [
+  { label: 'None', value: '' },
+  { label: 'Bonus Cash', value: 'bonus_cash' },
+  { label: 'Free Spins', value: 'free_spins' },
+  { label: 'XP Points', value: 'xp' },
+  { label: 'Tokens', value: 'tokens' },
+];
 
 export interface FieldOption {
   label: string;
@@ -38,6 +57,113 @@ export interface WizardStep {
 const ROOT_FIELDS = new Set(['name', 'description', 'priority']);
 
 export const isRootField = (name: string) => ROOT_FIELDS.has(name);
+
+interface LevelsEditorProps {
+  value: RankLevel[];
+  onChange: (value: RankLevel[]) => void;
+}
+
+/**
+ * Repeatable editor for a Rank's levels. Each row defines the XP window
+ * (start → end) for that level plus an optional per-level reward. The
+ * backend recomputes a player's level/rank from these XP windows.
+ */
+const LevelsEditor: FC<LevelsEditorProps> = ({ value, onChange }) => {
+  const cell =
+    'w-full px-2 py-1.5 bg-slate-800 border border-slate-700 rounded text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500';
+
+  const update = (idx: number, patch: Partial<RankLevel>) =>
+    onChange(value.map((row, i) => (i === idx ? { ...row, ...patch } : row)));
+
+  const addRow = () => {
+    const last = value[value.length - 1];
+    const nextLevel = last ? Number(last.level) + 1 : 1;
+    const nextStart = last ? Number(last.xp_end) || 0 : 0;
+    onChange([
+      ...value,
+      {
+        level: nextLevel,
+        xp_start: nextStart,
+        xp_end: nextStart + 100,
+        reward_type: '',
+        reward_value: 0,
+      },
+    ]);
+  };
+
+  const removeRow = (idx: number) => onChange(value.filter((_, i) => i !== idx));
+
+  return (
+    <div className="space-y-2">
+      {value.length > 0 && (
+        <div className="grid grid-cols-[60px_1fr_1fr_1fr_90px_28px] gap-2 text-[11px] text-slate-500 px-1">
+          <span>Level</span>
+          <span>XP Start</span>
+          <span>XP End</span>
+          <span>Level Reward</span>
+          <span>Reward Val</span>
+          <span />
+        </div>
+      )}
+
+      {value.map((row, idx) => (
+        <div key={idx} className="grid grid-cols-[60px_1fr_1fr_1fr_90px_28px] gap-2 items-center">
+          <input
+            type="number"
+            className={cell}
+            value={row.level ?? ''}
+            onChange={(e) => update(idx, { level: Number(e.target.value) })}
+          />
+          <input
+            type="number"
+            className={cell}
+            value={row.xp_start ?? ''}
+            onChange={(e) => update(idx, { xp_start: Number(e.target.value) })}
+          />
+          <input
+            type="number"
+            className={cell}
+            value={row.xp_end ?? ''}
+            onChange={(e) => update(idx, { xp_end: Number(e.target.value) })}
+          />
+          <select
+            className={cell}
+            value={row.reward_type ?? ''}
+            onChange={(e) => update(idx, { reward_type: e.target.value })}
+          >
+            {LEVEL_REWARD_TYPES.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <input
+            type="number"
+            className={cell}
+            value={row.reward_value ?? ''}
+            onChange={(e) => update(idx, { reward_value: Number(e.target.value) })}
+          />
+          <button
+            type="button"
+            onClick={() => removeRow(idx)}
+            className="text-red-400 hover:text-red-300 text-sm"
+            title="Remove level"
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={addRow}
+        className="mt-1 px-3 py-1.5 rounded text-xs bg-blue-600/80 hover:bg-blue-600 text-white"
+      >
+        + Add Level
+      </button>
+    </div>
+  );
+};
 
 interface FieldRendererProps {
   field: FieldDef;
@@ -152,6 +278,13 @@ export const FieldRenderer: FC<FieldRendererProps> = ({ field, value, error, onC
           />
           {field.placeholder ?? 'Enabled'}
         </label>
+      )}
+
+      {field.type === 'levels' && (
+        <LevelsEditor
+          value={Array.isArray(value) ? (value as RankLevel[]) : []}
+          onChange={(v) => onChange(v)}
+        />
       )}
 
       {field.hint && <p className="text-[11px] text-slate-500 mt-1">{field.hint}</p>}

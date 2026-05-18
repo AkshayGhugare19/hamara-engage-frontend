@@ -101,10 +101,17 @@ const CreateWizard: FC<CreateWizardProps> = ({
       s.fields.forEach((f) => {
         const v = getValue(form, f.name);
         if (v === undefined || v === null || v === '' || f.name === 'name') return;
-        entries.push({
-          label: f.label,
-          value: Array.isArray(v) ? v.join(', ') : String(v),
-        });
+        if (Array.isArray(v) && v.length === 0) return;
+        let display: string;
+        if (Array.isArray(v)) {
+          display =
+            typeof v[0] === 'object' && v[0] !== null
+              ? `${v.length} level${v.length === 1 ? '' : 's'} configured`
+              : v.join(', ');
+        } else {
+          display = String(v);
+        }
+        entries.push({ label: f.label, value: display });
       })
     );
     return entries;
