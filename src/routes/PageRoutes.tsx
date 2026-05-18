@@ -35,8 +35,18 @@ import FrequencyCapTableList from '@/pages/frequencyCap/FrequencyCapTableList';
 import UnsubscribeReportList from '@/pages/unsubscribeReport/UnsubscribeReportList';
 import PlayerDataPage from '@/pages/playerData/PlayerDataPage';
 import DocumentationPage from '@/pages/documentation/DocumentationPage';
-import GamificationModulePage from '@/components/gamification/GamificationModulePage';
-import { GAMIFICATION_MODULES, GAMIFICATION_ROUTES } from '@/config/gamificationModules';
+import MissionsPage from '@/pages/gamification/MissionsPage';
+import MissionBundlesPage from '@/pages/gamification/MissionBundlesPage';
+import RanksPage from '@/pages/gamification/RanksPage';
+import TokenRulesCasinoPage from '@/pages/gamification/TokenRulesCasinoPage';
+import TokenRulesSportsPage from '@/pages/gamification/TokenRulesSportsPage';
+import XpPointRulesCasinoPage from '@/pages/gamification/XpPointRulesCasinoPage';
+import XpPointRulesSportsPage from '@/pages/gamification/XpPointRulesSportsPage';
+import PlayerCategoriesPage from '@/pages/gamification/PlayerCategoriesPage';
+import RewardShopPage from '@/pages/gamification/RewardShopPage';
+import PrizesharkCatalogPage from '@/pages/gamification/PrizesharkCatalogPage';
+import PurchaseFeedPage from '@/pages/gamification/PurchaseFeedPage';
+import TournamentsPage from '@/pages/gamification/TournamentsPage';
 
 const PageRoutes: FC = () => {
   return (
@@ -54,51 +64,53 @@ const PageRoutes: FC = () => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/documentation" element={<DocumentationPage />} />
-        <Route path="/users" element={<UserTableList />} />
-        <Route path="/user-logs" element={<UserLogTableList />} />
-        <Route path="/roles" element={<RoleTableList />} />
-        <Route path="/system-settings" element={<SystemSettings />} />
-        <Route path="/tags-gamification" element={<TagsGamifications />} />
-        <Route path="/tags-crm" element={<CrmTags />} />
-        <Route path="/media-database" element={<MediaDatabase />} />
-        <Route path="/casino-catalog" element={<CasinoCatalogPage />} />
-        <Route path="/sports-catalog" element={<SportsCatalogPage />} />
-        <Route path="/http-debugger-console" element={<HttpDebuggerConsolePage />} />
 
-        {/* CRM Campaigns */}
+        {/* CRM Routes */}
+        <Route path="/crm" element={<Navigate to="/crm/campaigns" replace />} />
         <Route path="/crm/campaigns" element={<CampaignTableList />} />
         <Route path="/crm/campaigns/archive" element={<CampaignArchive />} />
         <Route path="/crm/campaigns/create" element={<CreateCampaign />} />
         <Route path="/crm/analytics" element={<AnalyticsPage />} />
-
-        {/* CRM Segments */}
         <Route path="/crm/segments" element={<SegmentTableList />} />
         <Route path="/crm/segments/archive" element={<SegmentArchive />} />
         <Route path="/crm/segments/create" element={<CreateSegment />} />
-
-        {/* CRM Templates */}
         <Route path="/crm/templates" element={<TemplateTableList />} />
         <Route path="/crm/templates/archive" element={<TemplateArchive />} />
         <Route path="/crm/templates/create" element={<CreateTemplate />} />
-
-        {/* CRM Custom Triggers */}
         <Route path="/crm/custom-triggers" element={<CustomTriggerTableList />} />
         <Route path="/crm/custom-triggers/archive" element={<CustomTriggerArchive />} />
         <Route path="/crm/custom-triggers/create" element={<CreateCustomTrigger />} />
-
-        {/* CRM Frequency Cap / Unsubscribe Reports / Player Data */}
         <Route path="/crm/frequency-cap" element={<FrequencyCapTableList />} />
         <Route path="/crm/unsubscribe-reports" element={<UnsubscribeReportList />} />
         <Route path="/crm/player-data" element={<PlayerDataPage />} />
 
-        {/* Gamification feature modules */}
-        {GAMIFICATION_ROUTES.map(({ path, key }) => (
-          <Route
-            key={path}
-            path={path}
-            element={<GamificationModulePage config={GAMIFICATION_MODULES[key]} />}
-          />
-        ))}
+        {/* Gamification */}
+        <Route path="/gamification" element={<Navigate to="/gamification/missions" replace />} />
+        <Route path="/gamification/missions" element={<MissionsPage />} />
+        <Route path="/gamification/mission-bundles" element={<MissionBundlesPage />} />
+        <Route path="/gamification/ranks" element={<RanksPage />} />
+        <Route path="/gamification/token-rules-casino" element={<TokenRulesCasinoPage />} />
+        <Route path="/gamification/token-rules-sports" element={<TokenRulesSportsPage />} />
+        <Route path="/gamification/xp-point-rules-casino" element={<XpPointRulesCasinoPage />} />
+        <Route path="/gamification/xp-point-rules-sports" element={<XpPointRulesSportsPage />} />
+        <Route path="/gamification/player-categories" element={<PlayerCategoriesPage />} />
+        <Route path="/gamification/reward-shop" element={<RewardShopPage />} />
+        <Route path="/gamification/prizeshark-catalog" element={<PrizesharkCatalogPage />} />
+        <Route path="/gamification/purchase-feed" element={<PurchaseFeedPage />} />
+        <Route path="/gamification/tournaments" element={<TournamentsPage />} />
+
+        {/* Settings routes */}
+        <Route path="/settings" element={<Navigate to="/settings/users" replace />} />
+        <Route path="/settings/users" element={<UserTableList />} />
+        <Route path="/settings/user-logs" element={<UserLogTableList />} />
+        <Route path="/settings/roles" element={<RoleTableList />} />
+        <Route path="/settings/system-settings" element={<SystemSettings />} />
+        <Route path="/settings/tags-gamification" element={<TagsGamifications />} />
+        <Route path="/settings/tags-crm" element={<CrmTags />} />
+        <Route path="/settings/media-database" element={<MediaDatabase />} />
+        <Route path="/settings/casino-catalog" element={<CasinoCatalogPage />} />
+        <Route path="/settings/sports-catalog" element={<SportsCatalogPage />} />
+        <Route path="/settings/http-debugger-console" element={<HttpDebuggerConsolePage />} />
       </Route>
 
       {/* 404 Page */}

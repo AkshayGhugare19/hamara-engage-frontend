@@ -114,9 +114,9 @@ const ROW1: TileData[] = [
     key: 'missionBundles',
     label: 'Mission Bundles',
     icon: icons.missionBundles,
-    to: '/mission-bundles',
+    to: '/gamification/mission-bundles',
   },
-  { key: 'missions', label: 'Missions', icon: icons.missions, to: '/missions' },
+  { key: 'missions', label: 'Missions', icon: icons.missions, to: '/gamification/missions' },
 ];
 
 const ROW2: TileData[] = [
@@ -124,18 +124,28 @@ const ROW2: TileData[] = [
     key: 'playerCategories',
     label: 'Player Categories',
     icon: icons.playerData,
-    to: '/player-categories',
+    to: '/gamification/player-categories',
   },
   { key: 'playerData', label: 'Player Data', icon: icons.playerData, to: '/crm/player-data' },
   {
     key: 'prizeshark',
     label: 'Prizeshark Catalog',
     icon: icons.prizeshark,
-    to: '/prizeshark-catalog',
+    to: '/gamification/prizeshark-catalog',
   },
-  { key: 'purchaseFeed', label: 'Purchase Feed', icon: icons.purchaseFeed, to: '/purchase-feed' },
-  { key: 'ranks', label: 'Ranks', icon: icons.ranks, to: '/ranks' },
-  { key: 'rewardShop', label: 'Reward Shop', icon: icons.rewardShop, to: '/reward-shop' },
+  {
+    key: 'purchaseFeed',
+    label: 'Purchase Feed',
+    icon: icons.purchaseFeed,
+    to: '/gamification/purchase-feed',
+  },
+  { key: 'ranks', label: 'Ranks', icon: icons.ranks, to: '/gamification/ranks' },
+  {
+    key: 'rewardShop',
+    label: 'Reward Shop',
+    icon: icons.rewardShop,
+    to: '/gamification/reward-shop',
+  },
 ];
 
 const ROW3: TileData[] = [
@@ -145,15 +155,15 @@ const ROW3: TileData[] = [
     key: 'tokenRulseCasino',
     label: 'Token Rules Casino',
     icon: icons.prizeshark,
-    to: '/token-rules-casino',
+    to: '/gamification/token-rules-casino',
   },
   {
     key: 'tokenRulseSuports',
     label: 'Token Rules Support',
     icon: icons.prizeshark,
-    to: '/token-rules-sports',
+    to: '/gamification/token-rules-sports',
   },
-  { key: 'tournaments', label: 'Tournaments', icon: icons.ranks, to: '/tournaments' },
+  { key: 'tournaments', label: 'Tournaments', icon: icons.ranks, to: '/gamification/tournaments' },
   {
     key: 'unsubscribeReports',
     label: 'Unsubscribe Reports',
@@ -167,13 +177,13 @@ const ROW4: TileData[] = [
     key: 'xpPointRulesCasino',
     label: 'XP Point Rules Casino',
     icon: icons.playerData,
-    to: '/xp-point-rules-casino',
+    to: '/gamification/xp-point-rules-casino',
   },
   {
     key: 'xpPointRulesSupports',
     label: 'XP Point Rules Supports',
     icon: icons.playerData,
-    to: '/xp-point-rules-sports',
+    to: '/gamification/xp-point-rules-sports',
   },
 ];
 

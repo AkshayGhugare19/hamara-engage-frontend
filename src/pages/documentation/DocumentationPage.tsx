@@ -158,42 +158,58 @@ const SECTIONS: DocSection[] = [
     intro:
       'Twelve feature modules share one configurable engine: a list with status/tag filters and a multi-step create wizard, all bound to /api/gamification/<feature>.',
     links: [
-      { label: 'Missions', to: '/missions', desc: 'Objective-based player challenges.' },
-      { label: 'Mission Bundles', to: '/mission-bundles', desc: 'Grouped mission journeys.' },
-      { label: 'Ranks', to: '/ranks', desc: 'Level tiers and rank rewards.' },
+      {
+        label: 'Missions',
+        to: '/gamification/missions',
+        desc: 'Objective-based player challenges.',
+      },
+      {
+        label: 'Mission Bundles',
+        to: '/gamification/mission-bundles',
+        desc: 'Grouped mission journeys.',
+      },
+      { label: 'Ranks', to: '/gamification/ranks', desc: 'Level tiers and rank rewards.' },
       {
         label: 'Token Rules (Casino)',
-        to: '/token-rules-casino',
+        to: '/gamification/token-rules-casino',
         desc: 'Casino token earn rules.',
       },
       {
         label: 'Token Rules (Sports)',
-        to: '/token-rules-sports',
+        to: '/gamification/token-rules-sports',
         desc: 'Sports token earn rules.',
       },
       {
         label: 'XP Point Rules (Casino)',
-        to: '/xp-point-rules-casino',
+        to: '/gamification/xp-point-rules-casino',
         desc: 'Casino XP contribution.',
       },
       {
         label: 'XP Point Rules (Sports)',
-        to: '/xp-point-rules-sports',
+        to: '/gamification/xp-point-rules-sports',
         desc: 'Sports XP contribution.',
       },
       {
         label: 'Player Categories',
-        to: '/player-categories',
+        to: '/gamification/player-categories',
         desc: 'Range-based player segmentation.',
       },
-      { label: 'Reward Shop', to: '/reward-shop', desc: 'Token/real-price product catalog.' },
+      {
+        label: 'Reward Shop',
+        to: '/gamification/reward-shop',
+        desc: 'Token/real-price product catalog.',
+      },
       {
         label: 'Prizeshark Catalog',
-        to: '/prizeshark-catalog',
+        to: '/gamification/prizeshark-catalog',
         desc: 'CSV-only external prize feed.',
       },
-      { label: 'Purchase Feed', to: '/purchase-feed', desc: 'Purchase activity entries.' },
-      { label: 'Tournaments', to: '/tournaments', desc: 'Leaderboard competitions.' },
+      {
+        label: 'Purchase Feed',
+        to: '/gamification/purchase-feed',
+        desc: 'Purchase activity entries.',
+      },
+      { label: 'Tournaments', to: '/gamification/tournaments', desc: 'Leaderboard competitions.' },
     ],
   },
   {

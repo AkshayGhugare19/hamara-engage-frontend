@@ -1,5 +1,11 @@
 import { useEffect, useState, type FC } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import {
+  GAMIFICATION_BASE,
+  GAMIFICATION_MODULE_KEYS,
+  GAMIFICATION_MODULES,
+  gamificationPath,
+} from '@/config/gamificationModules';
 
 const GamanzaIcon: FC = () => (
   <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
@@ -95,28 +101,19 @@ const Sidebar: FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const isCRMActive = path.startsWith('/crm');
 
-  const isGameActive =
-    path.startsWith('/missions') ||
-    path.startsWith('/mission-bundles') ||
-    path.startsWith('/ranks') ||
-    path.startsWith('/token-rules') ||
-    path.startsWith('/xp-point') ||
-    path.startsWith('/player-categories') ||
-    path.startsWith('/reward-shop') ||
-    path.startsWith('/prizeshark') ||
-    path.startsWith('/purchase-feed') ||
-    path.startsWith('/tournaments');
+  const isGameActive = path.startsWith(GAMIFICATION_BASE);
 
   const isSettingActive =
-    path.startsWith('/users') ||
-    path.startsWith('/user-logs') ||
-    path.startsWith('/roles') ||
-    path.startsWith('/system-settings') ||
-    path.startsWith('/tags') ||
-    path.startsWith('/media-database') ||
-    path.startsWith('/casino-catalog') ||
-    path.startsWith('/sports-catalog') ||
-    path.startsWith('/http-debugger-console');
+    path.startsWith('/settings/users') ||
+    path.startsWith('/settings/user-logs') ||
+    path.startsWith('/settings/roles') ||
+    path.startsWith('/settings/system-settings') ||
+    path.startsWith('/settings/tags-gamification') ||
+    path.startsWith('/settings/tags-crm') ||
+    path.startsWith('/settings/media-database') ||
+    path.startsWith('/settings/casino-catalog') ||
+    path.startsWith('/settings/sports-catalog') ||
+    path.startsWith('/settings/http-debugger-console');
 
   useEffect(() => {
     if (isCRMActive) setCrmOpen(true);
@@ -235,20 +232,10 @@ const Sidebar: FC = () => {
 
         {!collapsed && gameOpen && (
           <div className="ml-6 border-l border-white/5">
-            {[
-              ['/missions', 'Missions'],
-              ['/mission-bundles', 'Mission Bundles'],
-              ['/ranks', 'Ranks'],
-              ['/token-rules-casino', 'Token Rules (Casino)'],
-              ['/token-rules-sports', 'Token Rules (Sports)'],
-              ['/xp-point-rules-casino', 'XP Point Rules (Casino)'],
-              ['/xp-point-rules-sports', 'XP Point Rules (Sports)'],
-              ['/player-categories', 'Player Categories'],
-              ['/reward-shop', 'Reward Shop'],
-              ['/prizeshark-catalog', 'Prizeshark Catalog'],
-              ['/purchase-feed', 'Purchase Feed'],
-              ['/tournaments', 'Tournaments'],
-            ].map(([to, label]) => (
+            {GAMIFICATION_MODULE_KEYS.map((key) => [
+              gamificationPath(key),
+              GAMIFICATION_MODULES[key].title,
+            ]).map(([to, label]) => (
               <NavLink
                 key={to}
                 to={to}
@@ -277,16 +264,16 @@ const Sidebar: FC = () => {
         {!collapsed && settingOpen && (
           <div className="ml-6 border-l border-white/5">
             {[
-              ['/users', 'User Management'],
-              ['/user-logs', 'User Logs'],
-              ['/roles', 'Roles'],
-              ['/system-settings', 'System Settings'],
-              ['/tags-gamification', 'Tags (Gamification)'],
-              ['/tags-crm', 'Tags (CRM)'],
-              ['/media-database', 'Media Database'],
-              ['/casino-catalog', 'Casino Catalog'],
-              ['/sports-catalog', 'Sports Catalog'],
-              ['/http-debugger-console', 'HTTP Debugger Console'],
+              ['/settings/users', 'User Management'],
+              ['/settings/user-logs', 'User Logs'],
+              ['/settings/roles', 'Roles'],
+              ['/settings/system-settings', 'System Settings'],
+              ['/settings/tags-gamification', 'Tags (Gamification)'],
+              ['/settings/tags-crm', 'Tags (CRM)'],
+              ['/settings/media-database', 'Media Database'],
+              ['/settings/casino-catalog', 'Casino Catalog'],
+              ['/settings/sports-catalog', 'Sports Catalog'],
+              ['/settings/http-debugger-console', 'HTTP Debugger Console'],
             ].map(([to, label]) => (
               <NavLink
                 key={to}

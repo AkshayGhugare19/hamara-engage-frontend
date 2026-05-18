@@ -345,25 +345,25 @@ const ruleModule = (
 
 GAMIFICATION_MODULES['token-rules-casino'] = ruleModule(
   'token-rules-casino',
-  'Token Casino',
+  'Token Rules (Casino)',
   'Token Rule Casino',
   'Add Bulk Tokens'
 );
 GAMIFICATION_MODULES['token-rules-sports'] = ruleModule(
   'token-rules-sports',
-  'Tokens Sport',
+  'Token Rules (Sports)',
   'Token Rule Sport',
   'Add Bulk Tokens'
 );
 GAMIFICATION_MODULES['xp-point-rules-casino'] = ruleModule(
   'xp-point-rules-casino',
-  'XP Points Casino',
+  'XP Point Rules (Casino)',
   'XP Points Rule',
   'Add Bulk XP Points'
 );
 GAMIFICATION_MODULES['xp-point-rules-sports'] = ruleModule(
   'xp-point-rules-sports',
-  'XP Point Sports',
+  'XP Point Rules (Sports)',
   'XP Points Rule',
   'Add Bulk XP Points'
 );
@@ -797,18 +797,32 @@ GAMIFICATION_MODULES['tournaments'] = {
   ],
 };
 
-// path → config (used by the router)
-export const GAMIFICATION_ROUTES: { path: string; key: string }[] = [
-  { path: '/missions', key: 'missions' },
-  { path: '/mission-bundles', key: 'mission-bundles' },
-  { path: '/ranks', key: 'ranks' },
-  { path: '/token-rules-casino', key: 'token-rules-casino' },
-  { path: '/token-rules-sports', key: 'token-rules-sports' },
-  { path: '/xp-point-rules-casino', key: 'xp-point-rules-casino' },
-  { path: '/xp-point-rules-sports', key: 'xp-point-rules-sports' },
-  { path: '/player-categories', key: 'player-categories' },
-  { path: '/reward-shop', key: 'reward-shop' },
-  { path: '/prizeshark-catalog', key: 'prizeshark-catalog' },
-  { path: '/purchase-feed', key: 'purchase-feed' },
-  { path: '/tournaments', key: 'tournaments' },
-];
+// Base path all gamification module routes are nested under.
+export const GAMIFICATION_BASE = '/gamification';
+
+// Default sub-route used when landing on the bare `/gamification` path.
+export const GAMIFICATION_DEFAULT_KEY = 'missions';
+
+// Module keys in the order they should appear in nav menus.
+export const GAMIFICATION_MODULE_KEYS = [
+  'missions',
+  'mission-bundles',
+  'ranks',
+  'token-rules-casino',
+  'token-rules-sports',
+  'xp-point-rules-casino',
+  'xp-point-rules-sports',
+  'player-categories',
+  'reward-shop',
+  'prizeshark-catalog',
+  'purchase-feed',
+  'tournaments',
+] as const;
+
+// Build the full route path for a given module key (e.g. "ranks" → "/gamification/ranks").
+export const gamificationPath = (key: string): string => `${GAMIFICATION_BASE}/${key}`;
+
+// path → config (used by the router). Paths are nested under `/gamification`.
+export const GAMIFICATION_ROUTES: { path: string; key: string }[] = GAMIFICATION_MODULE_KEYS.map(
+  (key) => ({ path: gamificationPath(key), key })
+);
