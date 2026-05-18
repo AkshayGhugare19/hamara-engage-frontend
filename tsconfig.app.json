@@ -24,10 +24,9 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
 
-    /* Path aliases */
-    "baseUrl": ".",
+    /* Path aliases (baseUrl-free; paths resolve relative to this tsconfig) */
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"]
