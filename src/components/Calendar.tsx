@@ -60,7 +60,7 @@ const CalendarComponent: FC = () => {
     d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
 
   return (
-    <div className="w-full bg-[#0d1b3e] border-l border-white/5 p-4">
+    <div className="w-full bg-[#0d1b3e] p-5">
       <div className="flex items-center justify-between mb-4">
         <span className="text-sm font-semibold text-slate-100">
           {MONTHS[month]} {year}

@@ -15,12 +15,13 @@ import type { ApiError, LoginResponseData } from '@/types';
 const Login = () => {
   const [email, setEmail] = useState<string>('admin@test.com');
   const [password, setPassword] = useState<string>('123456');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (e: FormEvent<HTMLButtonElement>): Promise<void> => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
 
     try {
@@ -149,68 +150,54 @@ const Login = () => {
                   <h2 className="text-3xl font-bold text-white">Sign In</h2>
 
                   <p className="text-slate-400 mt-2 text-sm">
-                    Enter your credentials to access dashboard
+                    Enter your credentials to access the dashboard
                   </p>
                 </div>
 
                 {/* Form */}
-                <div className="space-y-4">
+                <form className="space-y-4" onSubmit={handleLogin}>
                   {/* Email */}
                   <div>
-                    <label className="text-sm text-slate-300 mb-1.5 block">Email Address</label>
+                    <label htmlFor="login-email" className="text-sm text-slate-300 mb-1.5 block">
+                      Email Address
+                    </label>
 
                     <input
+                      id="login-email"
                       type="email"
+                      autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
-                      className="
-                        w-full
-                        bg-slate-800/80
-                        border
-                        border-slate-700
-                        text-white
-                        px-4
-                        py-2.5
-                        rounded-lg
-                        outline-none
-                        transition-all
-                        duration-200
-                        focus:border-blue-500
-                        focus:ring-2
-                        focus:ring-blue-500/20
-                        placeholder:text-slate-500
-                      "
+                      className="w-full bg-slate-800/80 border border-slate-700 text-white px-4 py-2.5 rounded-lg outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-500"
                     />
                   </div>
 
                   {/* Password */}
                   <div>
-                    <label className="text-sm text-slate-300 mb-1.5 block">Password</label>
+                    <label htmlFor="login-password" className="text-sm text-slate-300 mb-1.5 block">
+                      Password
+                    </label>
 
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      className="
-                        w-full
-                        bg-slate-800/80
-                        border
-                        border-slate-700
-                        text-white
-                        px-4
-                        py-2.5
-                        rounded-lg
-                        outline-none
-                        transition-all
-                        duration-200
-                        focus:border-blue-500
-                        focus:ring-2
-                        focus:ring-blue-500/20
-                        placeholder:text-slate-500
-                      "
-                    />
+                    <div className="relative">
+                      <input
+                        id="login-password"
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter your password"
+                        className="w-full bg-slate-800/80 border border-slate-700 text-white px-4 py-2.5 pr-12 rounded-lg outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400 hover:text-slate-200 transition"
+                      >
+                        {showPassword ? 'Hide' : 'Show'}
+                      </button>
+                    </div>
                   </div>
 
                   {/* Forgot Password */}
@@ -225,29 +212,13 @@ const Login = () => {
 
                   {/* Login Button */}
                   <button
-                    type="button"
-                    onClick={handleLogin}
+                    type="submit"
                     disabled={loading}
-                    className="
-                      w-full
-                      bg-blue-600
-                      hover:bg-blue-500
-                      text-white
-                      py-2.5
-                      rounded-lg
-                      font-semibold
-                      transition-all
-                      duration-300
-                      flex
-                      items-center
-                      justify-center
-                      shadow-lg
-                      disabled:opacity-70
-                    "
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center shadow-lg disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                   >
                     {loading ? <ButtonLoader /> : 'Login'}
                   </button>
-                </div>
+                </form>
 
                 {/* Footer */}
                 <div className="mt-7 text-center">

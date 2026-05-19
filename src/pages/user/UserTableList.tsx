@@ -215,93 +215,139 @@ const UserTableList: FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="px-4 w-full">
-        <div className="flex justify-between items-center mb-6">
+      <div className="p-4 lg:p-6 w-full max-w-[1600px] mx-auto">
+        <div className="flex flex-wrap gap-4 justify-between items-center mb-6">
           <PageHeaderBreadcrumb
             title="User Management"
             items={[{ label: 'Home', clickable: true }, { label: 'Settings' }, { label: 'Users' }]}
           />
 
-          <button onClick={openCreateModal} className="bg-blue-600 px-4 py-2 rounded text-white">
+          <button
+            onClick={openCreateModal}
+            className="bg-blue-600 hover:bg-blue-500 px-4 py-2.5 rounded-lg text-white text-sm font-semibold transition-colors shadow-lg shadow-blue-600/20"
+          >
             + Create New User
           </button>
         </div>
 
-        <input
-          type="text"
-          placeholder="Search user?..."
-          className="w-72 px-4 py-2 rounded bg-slate-800 border border-slate-700 mb-5"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="rounded-xl border border-slate-700 bg-[#162040] overflow-hidden">
+          <div className="p-4 border-b border-slate-700">
+            <div className="relative max-w-sm">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </span>
+              <input
+                type="text"
+                placeholder="Search by name, email or username..."
+                className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-sm text-slate-200 placeholder:text-slate-500 outline-none transition-all focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/15"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
 
-        <div className="overflow-x-auto border border-slate-700 rounded-md">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-800">
-              <tr>
-                <th className="p-3 text-left">Name</th>
-                <th className="p-3 text-left">Email</th>
-                <th className="p-3 text-left">Mobile</th>
-                <th className="p-3 text-left">Username</th>
-                <th className="p-3 text-left">Status</th>
-                <th className="p-3 text-left">Role</th>
-                <th className="p-3 text-left">Action</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {filteredUsers.length === 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-slate-800 text-slate-400">
                 <tr>
-                  <td colSpan={7} className="p-6 text-center text-slate-400">
-                    No data found
-                  </td>
+                  <th className="px-4 py-3 text-left font-semibold uppercase tracking-wide text-xs">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold uppercase tracking-wide text-xs">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold uppercase tracking-wide text-xs">
+                    Mobile
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold uppercase tracking-wide text-xs">
+                    Username
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold uppercase tracking-wide text-xs">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold uppercase tracking-wide text-xs">
+                    Role
+                  </th>
+                  <th className="px-4 py-3 text-right font-semibold uppercase tracking-wide text-xs">
+                    Action
+                  </th>
                 </tr>
-              ) : (
-                filteredUsers.map((user) => (
-                  <tr key={user?.id} className="border-t border-slate-700">
-                    <td className="p-3">
-                      {user?.first_name} {user?.last_name}
-                    </td>
-                    <td className="p-3">{user?.email}</td>
-                    <td className="p-3">{user?.mobile}</td>
-                    <td className="p-3">{user?.username}</td>
+              </thead>
 
-                    <td className="p-3">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs ${
-                          user?.status === 'ACTIVE'
-                            ? 'bg-green-500/20 text-green-400'
-                            : 'bg-red-500/20 text-red-400'
-                        }`}
-                      >
-                        {user?.status}
-                      </span>
-                    </td>
-
-                    <td className="p-3">{user?.role}</td>
-
-                    <td className="p-3 flex gap-2">
-                      <button
-                        className="bg-blue-600 px-3 py-1 rounded text-xs"
-                        onClick={() => {
-                          openShowUpdateModal(user);
-                        }}
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        className="bg-red-600 px-3 py-1 rounded text-xs"
-                        onClick={() => handleDelete(user?.id)}
-                      >
-                        Delete
-                      </button>
+              <tbody>
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                      No users found
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filteredUsers.map((user) => (
+                    <tr
+                      key={user?.id}
+                      className="border-t border-slate-700/60 hover:bg-white/[0.03] transition-colors"
+                    >
+                      <td className="px-4 py-3 text-slate-200 font-medium">
+                        {user?.first_name} {user?.last_name}
+                      </td>
+                      <td className="px-4 py-3 text-slate-300">{user?.email}</td>
+                      <td className="px-4 py-3 text-slate-300">{user?.mobile}</td>
+                      <td className="px-4 py-3 text-slate-300">{user?.username}</td>
+
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                            user?.status === 'ACTIVE'
+                              ? 'bg-green-500/15 text-green-400'
+                              : 'bg-red-500/15 text-red-400'
+                          }`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              user?.status === 'ACTIVE' ? 'bg-green-400' : 'bg-red-400'
+                            }`}
+                          />
+                          {user?.status}
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-3 text-slate-300">{user?.role}</td>
+
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            className="bg-blue-600/90 hover:bg-blue-500 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                            onClick={() => {
+                              openShowUpdateModal(user);
+                            }}
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            className="bg-red-600/90 hover:bg-red-500 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                            onClick={() => handleDelete(user?.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />

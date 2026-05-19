@@ -1,4 +1,4 @@
-import { useEffect, useState, type FC } from 'react';
+import { useEffect, useState, type FC, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   GAMIFICATION_BASE,
@@ -86,9 +86,13 @@ const ChevronDown: FC<ChevronDownProps> = ({ open }) => (
 );
 
 const navItem =
-  'flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-150 border-l-[3px]';
-const active = 'text-blue-400 bg-blue-400/10 border-blue-400 font-medium';
+  'flex items-center gap-3 px-4 py-2.5 text-sm rounded-r-md transition-all duration-150 border-l-[3px]';
+const active = 'text-blue-400 bg-blue-400/10 border-blue-400 font-semibold';
 const inactive = 'text-slate-400 hover:text-slate-100 hover:bg-white/5 border-transparent';
+
+const subItem = 'block pl-4 pr-3 py-2 text-[13px] rounded-md transition-colors';
+const subActive = 'text-blue-300 bg-blue-400/5 font-medium';
+const subInactive = 'text-slate-400 hover:text-white hover:bg-white/5';
 
 const Sidebar: FC = () => {
   const location = useLocation();
@@ -120,195 +124,224 @@ const Sidebar: FC = () => {
     if (isSettingActive) setSettingOpen(true);
   }, [path]);
 
+  const crmLinks = [
+    { to: '/crm/campaigns', label: 'Campaigns' },
+    { to: '/crm/analytics', label: 'Analytics' },
+    { to: '/crm/segments', label: 'Segments' },
+    { to: '/crm/templates', label: 'Templates' },
+    { to: '/crm/custom-triggers', label: 'Custom Triggers' },
+    { to: '/crm/frequency-cap', label: 'Frequency Cap' },
+    { to: '/crm/unsubscribe-reports', label: 'Unsubscribe Reports' },
+    { to: '/crm/player-data', label: 'Player Data' },
+  ];
+
+  const gameLinks = GAMIFICATION_MODULE_KEYS.map((key) => ({
+    to: gamificationPath(key),
+    label: GAMIFICATION_MODULES[key].title,
+  }));
+
+  const settingsLinks = [
+    { to: '/settings/users', label: 'User Management' },
+    { to: '/settings/user-logs', label: 'User Logs' },
+    { to: '/settings/roles', label: 'Roles' },
+    { to: '/settings/system-settings', label: 'System Settings' },
+    { to: '/settings/tags-gamification', label: 'Tags (Gamification)' },
+    { to: '/settings/tags-crm', label: 'Tags (CRM)' },
+    { to: '/settings/media-database', label: 'Media Database' },
+    { to: '/settings/casino-catalog', label: 'Casino Catalog' },
+    { to: '/settings/sports-catalog', label: 'Sports Catalog' },
+    { to: '/settings/http-debugger-console', label: 'HTTP Debugger Console' },
+  ];
+
+  const renderGroup = (
+    label: string,
+    icon: ReactNode,
+    open: boolean,
+    toggle: () => void,
+    isActiveGroup: boolean,
+    links: { to: string; label: string }[]
+  ): ReactNode => (
+    <div>
+      <button
+        type="button"
+        onClick={toggle}
+        aria-expanded={open}
+        title={collapsed ? label : undefined}
+        className={`${navItem} ${isActiveGroup ? active : inactive} w-full ${
+          collapsed ? 'justify-center' : ''
+        }`}
+      >
+        {icon}
+        {!collapsed && <span className="flex-1 text-left">{label}</span>}
+        {!collapsed && <ChevronDown open={open} />}
+      </button>
+
+      {!collapsed && (
+        <div
+          className={`overflow-hidden transition-all duration-200 ${
+            open ? 'max-h-[640px]' : 'max-h-0'
+          }`}
+        >
+          <div className="ml-5 my-1 border-l border-white/10 pl-2 space-y-0.5">
+            {links.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) => `${subItem} ${isActive ? subActive : subInactive}`}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <div
+    <aside
       className={`${
-        collapsed ? 'w-[120px] min-w-[118px]' : 'w-[240px] min-w-[240px]'
-      } bg-[#0d1b3e] border-r border-white/5 flex flex-col h-screen sticky  top-0 overflow-y-auto thin-scrollbar transition-all duration-300`}
+        collapsed ? 'w-[76px] min-w-[76px]' : 'w-[244px] min-w-[244px]'
+      } bg-[#0d1b3e] border-r border-white/5 flex flex-col h-screen sticky top-0 transition-all duration-300`}
     >
-      <div className="flex items-center justify-between px-4 pt-5 pb-3">
+      {/* Brand */}
+      <div
+        className={`flex items-center px-4 pt-5 pb-4 ${
+          collapsed ? 'justify-center' : 'justify-between'
+        }`}
+      >
         {!collapsed && (
-          <div className="flex items-center gap-2.5">
-            <img src={gamruLogo} alt="Gamru Logo" className="w-[60px] h-[60px] object-contain" />
+          <div className="flex items-center gap-2">
+            <img src={gamruLogo} alt="Gamru" className="w-[52px] h-[52px] object-contain" />
+            <div className="leading-tight">
+              <p className="text-sm font-bold text-white">Gamru</p>
+              <p className="text-[10px] text-slate-500">Engage v2.11.0</p>
+            </div>
           </div>
         )}
 
         {collapsed && (
-          <img src={gamruLogo} alt="Gamru Logo" className="w-[60px] h-[60px] object-contain" />
+          <img src={gamruLogo} alt="Gamru" className="w-[40px] h-[40px] object-contain" />
         )}
 
+        {!collapsed && (
+          <button
+            onClick={() => setCollapsed(true)}
+            className="text-slate-400 hover:text-white hover:bg-white/10 p-2 rounded-md transition-colors"
+            type="button"
+            aria-label="Collapse sidebar"
+          >
+            <HamburgerIcon />
+          </button>
+        )}
+      </div>
+
+      {collapsed && (
         <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-white hover:bg-white/10 p-2 rounded-md"
+          onClick={() => setCollapsed(false)}
+          className="mx-auto mb-3 text-slate-400 hover:text-white hover:bg-white/10 p-2 rounded-md transition-colors"
           type="button"
+          aria-label="Expand sidebar"
         >
           <HamburgerIcon />
         </button>
-      </div>
+      )}
 
-      {!collapsed && <div className="text-[9px] text-slate-600 px-4 mb-3">v2.11.0</div>}
-
+      {/* Create */}
       <button
-        className={`mx-3.5 mb-4 flex items-center ${
-          collapsed ? 'justify-center px-0' : 'gap-2 px-4'
-        } border border-white/25 rounded-full py-2 text-white text-sm font-medium hover:bg-white/10 transition`}
+        type="button"
+        title={collapsed ? 'Create' : undefined}
+        className={`mx-3 mb-3 flex items-center ${
+          collapsed ? 'justify-center px-0' : 'gap-2 px-4 justify-center'
+        } bg-blue-600 hover:bg-blue-500 rounded-lg py-2.5 text-white text-sm font-semibold transition-colors`}
       >
         <PlusIcon />
         {!collapsed && 'Create'}
       </button>
 
       {!collapsed && (
-        <div className="bg-[#0e7c6e] text-white text-xs font-semibold tracking-widest px-4 py-2">
-          SBX
+        <div className="mx-3 mb-3 flex items-center gap-2 rounded-md bg-[#0e7c6e]/15 border border-[#0e7c6e]/40 px-3 py-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#22c3aa]" />
+          <span className="text-[11px] font-semibold tracking-widest text-[#22c3aa]">SANDBOX</span>
         </div>
       )}
 
-      <nav className="py-2 overflow-y-auto">
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto thin-scrollbar px-2 py-1 space-y-0.5">
+        {!collapsed && (
+          <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-600">
+            Overview
+          </p>
+        )}
+
         <NavLink
           to="/dashboard"
-          className={({ isActive }) => `${navItem} ${isActive ? active : inactive}`}
+          title={collapsed ? 'Dashboard' : undefined}
+          className={({ isActive }) =>
+            `${navItem} ${isActive ? active : inactive} ${collapsed ? 'justify-center' : ''}`
+          }
         >
           <HomeIcon />
           {!collapsed && 'Dashboard'}
         </NavLink>
 
         <NavLink
-          to="/documentation"
-          className={({ isActive }) => `${navItem} ${isActive ? active : inactive}`}
-        >
-          <HelpIcon />
-          {!collapsed && 'Documentation'}
-        </NavLink>
-
-        <NavLink
           to="/players"
-          className={({ isActive }) => `${navItem} ${isActive ? active : inactive}`}
+          title={collapsed ? 'Players' : undefined}
+          className={({ isActive }) =>
+            `${navItem} ${isActive ? active : inactive} ${collapsed ? 'justify-center' : ''}`
+          }
         >
           <PlayersIcon />
           {!collapsed && 'Players'}
         </NavLink>
 
-        {/* CRM */}
-        <button
-          onClick={() => setCrmOpen(!crmOpen)}
-          className={`${navItem} ${isCRMActive ? active : inactive} w-full`}
-        >
-          <CRMIcon />
-          {!collapsed && 'CRM'}
-          {!collapsed && <ChevronDown open={crmOpen} />}
-        </button>
-
-        {!collapsed && crmOpen && (
-          <div className="ml-6 border-l border-white/5">
-            {[
-              { to: '/crm/campaigns', label: 'Campaigns' },
-              { to: '/crm/analytics', label: 'Analytics' },
-              { to: '/crm/segments', label: 'Segments' },
-              { to: '/crm/templates', label: 'Templates' },
-              { to: '/crm/custom-triggers', label: 'Custom Triggers' },
-              { to: '/crm/frequency-cap', label: 'Frequency Cap' },
-              { to: '/crm/unsubscribe-reports', label: 'Unsubscribe Reports' },
-              { to: '/crm/player-data', label: 'Player Data' },
-            ].map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  `block px-4 py-2 text-sm ${
-                    isActive ? 'text-white' : 'text-slate-400 hover:text-white'
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
+        {!collapsed && (
+          <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-600">
+            Workspace
+          </p>
         )}
 
-        {/* Gamification */}
-        <button
-          onClick={() => setGameOpen(!gameOpen)}
-          className={`${navItem} ${isGameActive ? active : inactive} w-full`}
-        >
-          <GamificationIcon />
-          {!collapsed && 'Gamification'}
-          {!collapsed && <ChevronDown open={gameOpen} />}
-        </button>
-
-        {!collapsed && gameOpen && (
-          <div className="ml-6 border-l border-white/5">
-            {GAMIFICATION_MODULE_KEYS.map((key) => [
-              gamificationPath(key),
-              GAMIFICATION_MODULES[key].title,
-            ]).map(([to, label]) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  `block px-4 py-2 text-sm ${
-                    isActive ? 'text-white ' : 'text-slate-400 hover:text-white'
-                  }`
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
-          </div>
+        {renderGroup(
+          'CRM',
+          <CRMIcon />,
+          crmOpen,
+          () => setCrmOpen(!crmOpen),
+          isCRMActive,
+          crmLinks
         )}
-
-        {/* Settings */}
-        <button
-          onClick={() => setSettingOpen(!settingOpen)}
-          className={`${navItem} ${isSettingActive ? active : inactive} w-full`}
-        >
-          <SettingsIcon />
-          {!collapsed && 'Settings'}
-          {!collapsed && <ChevronDown open={settingOpen} />}
-        </button>
-
-        {!collapsed && settingOpen && (
-          <div className="ml-6 border-l border-white/5">
-            {[
-              ['/settings/users', 'User Management'],
-              ['/settings/user-logs', 'User Logs'],
-              ['/settings/roles', 'Roles'],
-              ['/settings/system-settings', 'System Settings'],
-              ['/settings/tags-gamification', 'Tags (Gamification)'],
-              ['/settings/tags-crm', 'Tags (CRM)'],
-              ['/settings/media-database', 'Media Database'],
-              ['/settings/casino-catalog', 'Casino Catalog'],
-              ['/settings/sports-catalog', 'Sports Catalog'],
-              ['/settings/http-debugger-console', 'HTTP Debugger Console'],
-            ].map(([to, label]) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  `block px-4 py-2 text-sm ${
-                    isActive ? 'text-white' : 'text-slate-400 hover:text-white'
-                  }`
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
-          </div>
+        {renderGroup(
+          'Gamification',
+          <GamificationIcon />,
+          gameOpen,
+          () => setGameOpen(!gameOpen),
+          isGameActive,
+          gameLinks
+        )}
+        {renderGroup(
+          'Settings',
+          <SettingsIcon />,
+          settingOpen,
+          () => setSettingOpen(!settingOpen),
+          isSettingActive,
+          settingsLinks
         )}
       </nav>
 
       {/* Bottom */}
       <NavLink
         to="/documentation"
+        title={collapsed ? 'Help & Support' : undefined}
         className={({ isActive }) =>
-          `mt-auto border-t border-white/5 px-4 py-4 flex items-center gap-2 transition-colors ${
-            isActive ? 'text-blue-400' : 'text-slate-500 hover:text-slate-200'
-          }`
+          `mt-auto border-t border-white/5 px-4 py-4 flex items-center gap-3 text-sm transition-colors ${
+            collapsed ? 'justify-center' : ''
+          } ${isActive ? 'text-blue-400' : 'text-slate-500 hover:text-slate-200'}`
         }
       >
         <HelpIcon />
         {!collapsed && 'Help & Support'}
       </NavLink>
-    </div>
+    </aside>
   );
 };
 

@@ -187,6 +187,11 @@ const ROW4: TileData[] = [
   },
 ];
 
+const ALL_TILES: TileData[] = [...ROW1, ...ROW2, ...ROW3, ...ROW4];
+
+const CRM_TILES = ALL_TILES.filter((t) => t.to.startsWith('/crm'));
+const GAMIFICATION_TILES = ALL_TILES.filter((t) => t.to.startsWith('/gamification'));
+
 /* ── Tile ── */
 interface TileProps {
   icon: ReactNode;
@@ -199,30 +204,42 @@ const Tile: FC<TileProps> = ({ icon, label, onClick }) => {
     <button
       onClick={onClick}
       type="button"
-      className="bg-[#162040] border border-white/5 rounded-xl p-4 flex items-center justify-between hover:bg-[#1d2e55] hover:border-blue-400/30 transition-all duration-150 group min-h-[80px]"
+      className="bg-[#162040] border border-white/5 rounded-xl p-4 flex items-center justify-between gap-3 hover:bg-[#1d2e55] hover:border-blue-400/40 hover:-translate-y-0.5 transition-all duration-150 group min-h-[88px] text-left"
     >
-      <div className="flex flex-col gap-3 text-left">
-        <span className="text-blue-400">{icon}</span>
-        <span className="text-sm font-medium text-slate-300">{label}</span>
+      <div className="flex flex-col gap-3 min-w-0">
+        <span className="w-9 h-9 rounded-lg bg-blue-400/10 text-blue-400 flex items-center justify-center group-hover:bg-blue-400/20 transition-colors">
+          {icon}
+        </span>
+        <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors truncate">
+          {label}
+        </span>
       </div>
-      <ArrowRight className="text-slate-600 group-hover:text-blue-400 transition-colors" />
+      <ArrowRight className="text-slate-600 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
     </button>
   );
 };
 
-/* ── Tile Row ── */
-interface TileRowProps {
+/* ── Tile Section ── */
+interface TileSectionProps {
+  title: string;
   tiles: TileData[];
   onTileClick: (to: string) => void;
 }
 
-const TileRow: FC<TileRowProps> = ({ tiles, onTileClick }) => {
+const TileSection: FC<TileSectionProps> = ({ title, tiles, onTileClick }) => {
   return (
-    <div className="grid grid-cols-6 gap-2.5">
-      {tiles.map((t) => (
-        <Tile key={t.key} icon={t.icon} label={t.label} onClick={() => onTileClick(t.to)} />
-      ))}
-    </div>
+    <section className="mt-6">
+      <div className="flex items-center gap-3 mb-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">{title}</h2>
+        <span className="flex-1 h-px bg-white/5" />
+        <span className="text-xs text-slate-500">{tiles.length}</span>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+        {tiles.map((t) => (
+          <Tile key={t.key} icon={t.icon} label={t.label} onClick={() => onTileClick(t.to)} />
+        ))}
+      </div>
+    </section>
   );
 };
 
@@ -249,41 +266,43 @@ const Dashboard: FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="w-full p-4">
-        <div className="w-full flex bg-[#111d3e] h-[300px]">
+      <div className="w-full p-4 lg:p-6 max-w-[1600px] mx-auto">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4">
+          {/* Hero */}
           <div
-            className="w-full rounded-xl px-10 py-8 flex items-center justify-between relative overflow-hidden"
+            className="rounded-2xl px-6 sm:px-10 py-8 flex items-center justify-between gap-6 relative overflow-hidden min-h-[260px]"
             style={{
               background: 'linear-gradient(135deg, #0f2260 0%, #1a3070 60%, #152d80 100%)',
             }}
           >
-            <div>
-              <h1 className="text-3xl font-bold text-white">
+            <div className="flex flex-col h-full">
+              <span className="inline-flex items-center gap-2 self-start rounded-full bg-[#22c3aa]/15 border border-[#22c3aa]/40 px-3 py-1 text-xs font-semibold text-[#22c3aa]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#22c3aa]" />
+                Sandbox environment
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mt-5">
                 Welcome back <span className="text-blue-400">{firstName || 'there'}</span>
               </h1>
-              <p className="text-slate-500 text-sm mt-1">Let&apos;s get to work.</p>
-              <div className="mt-20 w-full text-center">
-                <div className="text-[#22c3aa] bg-[#234c60] rounded-md px-4 py-2">sandbox</div>
-              </div>
+              <p className="text-slate-400 text-sm mt-2 max-w-md">
+                Manage campaigns, missions, ranks and player engagement — all from one place.
+                Let&apos;s get to work.
+              </p>
             </div>
             <img
               src="https://cdn-libs-uat.gamanzaengage.com/moneytree/mf-auth-layout/9e095acd7469c045d934.svg"
-              alt="Hero Illustration"
+              alt=""
+              className="hidden sm:block w-44 lg:w-56 flex-shrink-0 select-none pointer-events-none"
             />
           </div>
-          <div className="w-[500px]">
+
+          {/* Calendar */}
+          <div className="rounded-2xl border border-white/5 bg-[#0d1b3e] overflow-hidden">
             <CalendarComponent />
           </div>
         </div>
-        <div className="w-full mt-4">
-          <TileRow tiles={ROW1} onTileClick={navigate} />
-          <div className="my-4" />
-          <TileRow tiles={ROW2} onTileClick={navigate} />
-          <div className="my-4" />
-          <TileRow tiles={ROW3} onTileClick={navigate} />
-          <div className="my-4" />
-          <TileRow tiles={ROW4} onTileClick={navigate} />
-        </div>
+
+        <TileSection title="CRM" tiles={CRM_TILES} onTileClick={navigate} />
+        <TileSection title="Gamification" tiles={GAMIFICATION_TILES} onTileClick={navigate} />
       </div>
     </DashboardLayout>
   );

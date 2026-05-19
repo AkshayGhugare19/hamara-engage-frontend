@@ -80,11 +80,17 @@ const Header: FC = () => {
   useEffect(() => {
     getLoggedInUser();
   }, []);
+  const displayName =
+    [loggedInUser?.first_name, loggedInUser?.last_name].filter(Boolean).join(' ') || 'Admin User';
+  const initial = (loggedInUser?.first_name?.charAt(0) || 'A').toUpperCase();
+
   return (
-    <div className="flex-shrink-0 sticky top-0 z-50 h-14 px-6 flex items-center gap-4 border-b border-white/5 bg-[#0d1b3e]">
+    <header className="flex-shrink-0 sticky top-0 z-50 h-14 px-4 sm:px-6 flex items-center gap-4 border-b border-white/5 bg-[#0d1b3e]">
       {/* Date Time */}
-      <div className="flex items-center gap-4 text-xs text-slate-500">
-        <span>{utcStr}</span>
+      <div className="hidden md:flex items-center gap-3 text-xs">
+        <span className="text-slate-500">{utcStr}</span>
+
+        <span className="h-3 w-px bg-white/10" />
 
         <span className="text-slate-400">
           Your time:&nbsp;
@@ -103,60 +109,81 @@ const Header: FC = () => {
       </div>
 
       {/* Search */}
-      <div className="ml-auto flex items-center gap-2">
-        <span className="text-xs text-slate-500">Find Player by Username</span>
-
+      <div className="ml-auto flex items-center">
+        <label htmlFor="player-search" className="sr-only">
+          Find player by username
+        </label>
         <div className="relative flex items-center">
-          <input
-            type="text"
-            className="bg-white/5 border border-white/10 rounded px-3 py-1.5 text-sm text-slate-200 w-52 outline-none focus:border-blue-500/50"
-          />
-
-          <span className="absolute right-2 text-slate-500">
+          <span className="absolute left-3 text-slate-500 pointer-events-none">
             <SearchIcon />
           </span>
+          <input
+            id="player-search"
+            type="text"
+            placeholder="Find player by username"
+            className="bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 w-44 sm:w-64 outline-none transition-all focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/15 focus:bg-white/10"
+          />
         </div>
       </div>
 
-      {/* Avatar */}
-      <div className="w-8 h-8 rounded-full bg-amber-600 flex items-center justify-center text-xs font-bold text-white">
-        {loggedInUser?.first_name?.charAt(0) || 'A'}
-      </div>
+      <span className="hidden sm:block h-6 w-px bg-white/10" />
 
-      {/* Dropdown */}
+      {/* Account */}
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-1 text-sm text-slate-200 font-medium hover:text-white transition"
+          className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-white/5 transition-colors"
           type="button"
+          aria-haspopup="menu"
+          aria-expanded={open}
         >
-          {loggedInUser?.first_name || 'Admin User'}
+          <span className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-xs font-bold text-white ring-2 ring-white/10">
+            {initial}
+          </span>
+          <span className="hidden sm:flex flex-col items-start leading-tight">
+            <span className="text-sm text-slate-100 font-medium">{displayName}</span>
+            <span className="text-[11px] text-slate-500">
+              {loggedInUser?.email || 'Administrator'}
+            </span>
+          </span>
           <ChevronDown open={open} />
         </button>
 
         {open && (
-          <div className="absolute right-0 top-10 w-44 bg-[#162040] border border-white/10 rounded-lg shadow-xl overflow-hidden z-50">
+          <div
+            role="menu"
+            className="absolute right-0 top-12 w-52 bg-[#162040] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50"
+          >
+            <div className="px-4 py-3 border-b border-white/5 sm:hidden">
+              <p className="text-sm text-slate-100 font-medium truncate">{displayName}</p>
+              <p className="text-[11px] text-slate-500 truncate">
+                {loggedInUser?.email || 'Administrator'}
+              </p>
+            </div>
             <button
               onClick={() => {
+                setOpen(false);
                 navigate('/profile');
               }}
-              className="w-full text-left px-4 py-3 text-sm text-slate-200 hover:bg-white/5"
+              className="w-full text-left px-4 py-2.5 text-sm text-slate-200 hover:bg-white/5 transition-colors"
               type="button"
+              role="menuitem"
             >
               Profile
             </button>
 
             <button
               onClick={logout}
-              className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-white/5"
+              className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
               type="button"
+              role="menuitem"
             >
               Logout
             </button>
           </div>
         )}
       </div>
-    </div>
+    </header>
   );
 };
 
