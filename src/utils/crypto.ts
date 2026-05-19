@@ -8,7 +8,7 @@
 
 const SECRET: string =
   (import.meta.env.VITE_PASSWORD_SECRET as string | undefined) ||
-  'hamara-engage-shared-password-secret';
+  'gamru-engage-shared-password-secret';
 
 const ENC_PREFIX = 'enc:v1:';
 

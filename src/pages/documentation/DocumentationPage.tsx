@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import DashboardLayout from '@/layout/DashboardLayout';
 
 /**
- * In-app project guide. Explains what Hamara Engage does, the request flow,
+ * In-app project guide. Explains what Gamru Engage does, the request flow,
  * and every feature area — with clickable cross-links into the live screens
  * so the page doubles as a navigation hub for onboarding users.
  */
@@ -51,7 +51,7 @@ const SECTIONS: DocSection[] = [
     title: 'Overview',
     intro: (
       <>
-        <strong className="text-slate-200">Hamara Engage</strong> is a player engagement &amp; CRM
+        <strong className="text-slate-200">Gamru Engage</strong> is a player engagement &amp; CRM
         platform for iGaming operators. It pairs a TypeScript REST API (Express + Sequelize +
         PostgreSQL) with this React SPA. Operators design campaigns, build audience segments,
         configure gamification (missions, ranks, rewards, tournaments), manage casino/sports
@@ -275,7 +275,7 @@ const DocumentationPage: FC = () => {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white">Project Documentation</h1>
           <p className="mt-1 text-sm text-slate-400">
-            A guided tour of Hamara Engage — what each area does, how the stack fits together, and a
+            A guided tour of Gamru Engage — what each area does, how the stack fits together, and a
             direct link into every live screen.
           </p>
         </div>

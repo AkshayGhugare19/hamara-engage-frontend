@@ -6,14 +6,7 @@ import {
   GAMIFICATION_MODULES,
   gamificationPath,
 } from '@/config/gamificationModules';
-
-const GamanzaIcon: FC = () => (
-  <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
-    <rect width="40" height="40" rx="6" fill="#1e3a8a" />
-    <path d="M8 20 L16 10 L32 10 L32 20 L20 20 L20 30 L8 30 Z" fill="#3b82f6" />
-    <path d="M20 20 L32 20 L26 30 L20 30 Z" fill="#60a5fa" opacity="0.7" />
-  </svg>
-);
+import gamruLogo from '@/assets/gamruLogo.svg';
 
 const HamburgerIcon: FC = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -130,21 +123,19 @@ const Sidebar: FC = () => {
   return (
     <div
       className={`${
-        collapsed ? 'w-[78px] min-w-[78px]' : 'w-[240px] min-w-[240px]'
+        collapsed ? 'w-[120px] min-w-[118px]' : 'w-[240px] min-w-[240px]'
       } bg-[#0d1b3e] border-r border-white/5 flex flex-col h-screen sticky  top-0 overflow-y-auto thin-scrollbar transition-all duration-300`}
     >
       <div className="flex items-center justify-between px-4 pt-5 pb-3">
         {!collapsed && (
           <div className="flex items-center gap-2.5">
-            <GamanzaIcon />
-            <div className="leading-none">
-              <div className="text-white font-bold tracking-[2px] text-sm">HAMARA</div>
-              <div className="text-slate-400 text-[9px] tracking-[1.5px] uppercase">Engage</div>
-            </div>
+            <img src={gamruLogo} alt="Gamru Logo" className="w-[60px] h-[60px] object-contain" />
           </div>
         )}
 
-        {collapsed && <GamanzaIcon />}
+        {collapsed && (
+          <img src={gamruLogo} alt="Gamru Logo" className="w-[60px] h-[60px] object-contain" />
+        )}
 
         <button
           onClick={() => setCollapsed(!collapsed)}

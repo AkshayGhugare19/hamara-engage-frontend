@@ -37,7 +37,7 @@ const SystemSettingsSidePanel = ({ activeSection, onSelect }: Props) => (
         </button>
       ))}
     </nav>
-    <div className="px-4 py-4 border-t border-slate-700 text-xs text-slate-500">Hamara Engage®</div>
+    <div className="px-4 py-4 border-t border-slate-700 text-xs text-slate-500">Gamru Engage®</div>
   </div>
 );
 
