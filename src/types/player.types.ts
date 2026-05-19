@@ -38,6 +38,28 @@ export interface PlayerConsents {
   post?: boolean;
 }
 
+export interface PlayerProgress {
+  level: number;
+  rank_name: string | null;
+  xp_points: number;
+  xp_to_next: number;
+  max_level: number;
+}
+
+export interface PlayerNextRank {
+  rank_name: string;
+  level: number;
+  xp_required: number;
+  xp_remaining: number;
+  reward_type: string | null;
+  reward_value: number | null;
+}
+
+export interface PlayerGamificationSummary {
+  progress: PlayerProgress;
+  next_rank: PlayerNextRank | null;
+}
+
 export interface Player {
   id: string;
   player_id: string;
@@ -66,6 +88,8 @@ export interface Player {
   player_data?: Record<string, unknown> | null;
   custom_data?: Record<string, unknown> | null;
   transactional_data?: Record<string, unknown> | null;
+  /** Live progression resolved against the configured rank ladder. */
+  gamification?: PlayerGamificationSummary | null;
   created_at: string;
   updated_at: string;
 }

@@ -58,31 +58,76 @@ const ROOT_FIELDS = new Set(['name', 'description', 'priority']);
 
 export const isRootField = (name: string) => ROOT_FIELDS.has(name);
 
+/** Where this rank's levels must begin so the whole ladder stays continuous. */
+export interface LevelContinuation {
+  /** First level number for this rank (previous rank's last level + 1, or 1). */
+  startLevel: number;
+  /** First XP value for this rank (previous rank's last xp_end, or 0). */
+  startXp: number;
+  /** Name of the rank this one continues from, for the helper text. */
+  fromRank?: string | null;
+}
+
+const DEFAULT_CONTINUATION: LevelContinuation = { startLevel: 1, startXp: 0 };
+
+/**
+ * Re-stitch levels into one continuous ladder: levels are numbered
+ * sequentially from `startLevel`, and each XP window starts exactly where
+ * the previous one ended (the first starting at `startXp`). Only `xp_end`
+ * and the reward are user-controlled — the rest is derived so a rank can
+ * never restart level numbers or leave gaps the backend would reject.
+ */
+const normalizeLevels = (rows: RankLevel[], cont: LevelContinuation): RankLevel[] => {
+  let cursor = cont.startXp;
+  return rows.map((row, i) => {
+    const xp_start = cursor;
+    const rawEnd = Number(row.xp_end);
+    const xp_end = Number.isFinite(rawEnd) && rawEnd > xp_start ? rawEnd : xp_start + 100;
+    cursor = xp_end;
+    return {
+      ...row,
+      level: cont.startLevel + i,
+      xp_start,
+      xp_end,
+      reward_type: row.reward_type ?? '',
+      reward_value: row.reward_value ?? 0,
+    };
+  });
+};
+
 interface LevelsEditorProps {
   value: RankLevel[];
   onChange: (value: RankLevel[]) => void;
+  continuation?: LevelContinuation;
 }
 
 /**
- * Repeatable editor for a Rank's levels. Each row defines the XP window
- * (start → end) for that level plus an optional per-level reward. The
- * backend recomputes a player's level/rank from these XP windows.
+ * Repeatable editor for a Rank's levels. Levels are part of a single global
+ * ladder — this rank continues numbering and XP from the previous rank
+ * (`continuation`). Level number and XP Start are derived (read-only); the
+ * admin only sets each level's XP End and optional per-level reward.
  */
-const LevelsEditor: FC<LevelsEditorProps> = ({ value, onChange }) => {
+const LevelsEditor: FC<LevelsEditorProps> = ({ value, onChange, continuation }) => {
+  const cont = continuation ?? DEFAULT_CONTINUATION;
   const cell =
     'w-full px-2 py-1.5 bg-slate-800 border border-slate-700 rounded text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500';
+  const lockedCell =
+    'w-full px-2 py-1.5 bg-slate-900 border border-slate-800 rounded text-xs text-slate-400 cursor-not-allowed';
+
+  const rows = normalizeLevels(value, cont);
+
+  const emit = (next: RankLevel[]) => onChange(normalizeLevels(next, cont));
 
   const update = (idx: number, patch: Partial<RankLevel>) =>
-    onChange(value.map((row, i) => (i === idx ? { ...row, ...patch } : row)));
+    emit(rows.map((row, i) => (i === idx ? { ...row, ...patch } : row)));
 
   const addRow = () => {
-    const last = value[value.length - 1];
-    const nextLevel = last ? Number(last.level) + 1 : 1;
-    const nextStart = last ? Number(last.xp_end) || 0 : 0;
-    onChange([
-      ...value,
+    const last = rows[rows.length - 1];
+    const nextStart = last ? last.xp_end : cont.startXp;
+    emit([
+      ...rows,
       {
-        level: nextLevel,
+        level: cont.startLevel + rows.length,
         xp_start: nextStart,
         xp_end: nextStart + 100,
         reward_type: '',
@@ -91,11 +136,18 @@ const LevelsEditor: FC<LevelsEditorProps> = ({ value, onChange }) => {
     ]);
   };
 
-  const removeRow = (idx: number) => onChange(value.filter((_, i) => i !== idx));
+  const removeRow = (idx: number) => emit(rows.filter((_, i) => i !== idx));
 
   return (
     <div className="space-y-2">
-      {value.length > 0 && (
+      <p className="text-[11px] text-slate-500">
+        {cont.fromRank
+          ? `Continues from rank “${cont.fromRank}” — starts at level ${cont.startLevel} / ${cont.startXp} XP.`
+          : `First rank — starts at level ${cont.startLevel} / ${cont.startXp} XP.`}{' '}
+        Level &amp; XP Start are auto-continued; set XP End and the reward.
+      </p>
+
+      {rows.length > 0 && (
         <div className="grid grid-cols-[60px_1fr_1fr_1fr_90px_28px] gap-2 text-[11px] text-slate-500 px-1">
           <span>Level</span>
           <span>XP Start</span>
@@ -106,20 +158,10 @@ const LevelsEditor: FC<LevelsEditorProps> = ({ value, onChange }) => {
         </div>
       )}
 
-      {value.map((row, idx) => (
+      {rows.map((row, idx) => (
         <div key={idx} className="grid grid-cols-[60px_1fr_1fr_1fr_90px_28px] gap-2 items-center">
-          <input
-            type="number"
-            className={cell}
-            value={row.level ?? ''}
-            onChange={(e) => update(idx, { level: Number(e.target.value) })}
-          />
-          <input
-            type="number"
-            className={cell}
-            value={row.xp_start ?? ''}
-            onChange={(e) => update(idx, { xp_start: Number(e.target.value) })}
-          />
+          <input type="number" className={lockedCell} value={row.level} readOnly tabIndex={-1} />
+          <input type="number" className={lockedCell} value={row.xp_start} readOnly tabIndex={-1} />
           <input
             type="number"
             className={cell}
@@ -170,9 +212,17 @@ interface FieldRendererProps {
   value: unknown;
   error?: string;
   onChange: (value: unknown) => void;
+  /** Ladder continuation context for the `levels` editor. */
+  levelContinuation?: LevelContinuation;
 }
 
-export const FieldRenderer: FC<FieldRendererProps> = ({ field, value, error, onChange }) => {
+export const FieldRenderer: FC<FieldRendererProps> = ({
+  field,
+  value,
+  error,
+  onChange,
+  levelContinuation,
+}) => {
   const base =
     'w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500';
 
@@ -284,6 +334,7 @@ export const FieldRenderer: FC<FieldRendererProps> = ({ field, value, error, onC
         <LevelsEditor
           value={Array.isArray(value) ? (value as RankLevel[]) : []}
           onChange={(v) => onChange(v)}
+          continuation={levelContinuation}
         />
       )}
 

@@ -9,7 +9,7 @@ import type {
   GamificationStatus,
 } from '@/types/gamification.types';
 import { gamificationApi } from '@/services/gamification.api';
-import type { WizardStep } from './fields';
+import type { LevelContinuation, RankLevel, WizardStep } from './fields';
 import CreateWizard, { buildInitialForm, type WizardFormState } from './CreateWizard';
 import BulkUploadModal from './BulkUploadModal';
 
@@ -81,6 +81,9 @@ const GamificationModulePage = ({ config }: { config: GamificationModuleConfig }
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<WizardFormState>(buildInitialForm());
   const [saving, setSaving] = useState(false);
+  const [levelContinuation, setLevelContinuation] = useState<LevelContinuation | undefined>(
+    undefined
+  );
 
   const [showBulk, setShowBulk] = useState(false);
   const [menuId, setMenuId] = useState<string | null>(null);
@@ -131,9 +134,67 @@ const GamificationModulePage = ({ config }: { config: GamificationModuleConfig }
     if (view === 'list') fetchRows();
   }, [fetchRows, view]);
 
+  /**
+   * Ranks share one continuous ladder. Work out where this rank's levels
+   * must begin: continuing an existing rank keeps its own starting point,
+   * a brand-new rank picks up from the current top of the ladder, and the
+   * very first rank starts at level 1 / 0 XP.
+   */
+  const computeRankContinuation = useCallback(
+    async (editing?: GamificationEntity) => {
+      if (config.featureKey !== 'ranks') {
+        setLevelContinuation(undefined);
+        return;
+      }
+      const levelsOf = (r: GamificationEntity): RankLevel[] => {
+        const l = (r.data as { levels?: unknown })?.levels;
+        return Array.isArray(l) ? (l as RankLevel[]) : [];
+      };
+      try {
+        const res = await api.paginate({ page: 1, limit: 100, archived: false });
+        const ranks = res?.data?.data ?? [];
+        const others = ranks.filter((r) => !editing || r.id !== editing.id);
+
+        // Editing a rank that already has levels → keep its position.
+        const own = editing ? levelsOf(editing) : [];
+        if (own.length) {
+          const first = [...own].sort((a, b) => a.level - b.level)[0];
+          const from = others.find((r) =>
+            levelsOf(r).some((l) => Number(l.xp_end) === Number(first.xp_start))
+          );
+          setLevelContinuation({
+            startLevel: Number(first.level) || 1,
+            startXp: Number(first.xp_start) || 0,
+            fromRank: from?.name ?? null,
+          });
+          return;
+        }
+
+        const flat = others.flatMap(levelsOf);
+        if (!flat.length) {
+          setLevelContinuation({ startLevel: 1, startXp: 0, fromRank: null });
+          return;
+        }
+        const maxLevel = Math.max(...flat.map((l) => Number(l.level) || 0));
+        const maxXp = Math.max(...flat.map((l) => Number(l.xp_end) || 0));
+        const from = others.find((r) => levelsOf(r).some((l) => Number(l.xp_end) === maxXp));
+        setLevelContinuation({
+          startLevel: maxLevel + 1,
+          startXp: maxXp,
+          fromRank: from?.name ?? null,
+        });
+      } catch {
+        setLevelContinuation({ startLevel: 1, startXp: 0, fromRank: null });
+      }
+    },
+    [api, config.featureKey]
+  );
+
   const openCreate = () => {
     setEditId(null);
     setForm(buildInitialForm());
+    setLevelContinuation(undefined);
+    computeRankContinuation();
     setView('form');
   };
 
@@ -148,6 +209,8 @@ const GamificationModulePage = ({ config }: { config: GamificationModuleConfig }
       tags: row.tags ?? [],
       data: row.data ?? {},
     });
+    setLevelContinuation(undefined);
+    computeRankContinuation(row);
     setView('form');
   };
 
@@ -217,6 +280,7 @@ const GamificationModulePage = ({ config }: { config: GamificationModuleConfig }
             onSubmit={submit}
             saving={saving}
             editing={Boolean(editId)}
+            levelContinuation={levelContinuation}
           />
         </div>
       </DashboardLayout>

@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import {
   Award,
   Calendar,
+  ChevronsUp,
   Flame,
   Globe,
   IdCard,
@@ -39,8 +40,22 @@ const CONSENT_KEYS: { key: keyof NonNullable<Player['consents']>; node: React.Re
 ];
 
 const PlayerLeftPanel: FC<{ player: Player }> = ({ player }) => {
-  const xpTotal = player.xp_points + (player.xp_to_next || 0);
-  const xpPct = xpTotal > 0 ? Math.min(100, Math.round((player.xp_points / xpTotal) * 100)) : 0;
+  // Prefer the live ladder-resolved progression when the API supplies it.
+  const prog = player.gamification?.progress;
+  const next = player.gamification?.next_rank ?? null;
+
+  const level = prog?.level ?? player.level;
+  const maxLevel = prog?.max_level ?? player.max_level;
+  const rankName = prog?.rank_name ?? player.rank_name ?? 'Sprout';
+  const nextRankName =
+    player.gamification?.next_rank?.rank_name ??
+    player.gamification?.next_rank?.rank_name ??
+    'Sprout';
+  const xpPoints = prog?.xp_points ?? player.xp_points;
+  const xpToNext = player.gamification?.next_rank?.xp_required;
+
+  const xpTotal = xpPoints + (xpToNext || 0);
+  const xpPct = xpTotal > 0 ? Math.min(100, Math.round((xpPoints / xpTotal) * 100)) : 0;
 
   return (
     <aside className="w-[260px] min-w-[260px] bg-blue-600 text-white rounded-lg p-4 overflow-y-auto thin-scrollbar">
@@ -51,10 +66,10 @@ const PlayerLeftPanel: FC<{ player: Player }> = ({ player }) => {
             <UserIcon size={36} />
           </div>
           <span className="absolute -top-1 -right-1 bg-green-500 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-            {player.level}
+            {level}
           </span>
           <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-green-600 text-[10px] px-2 py-0.5 rounded-full">
-            {player.rank_name || 'Sprout'}
+            {rankName}
           </span>
         </div>
         <h2 className="mt-4 font-bold italic">{player.username}</h2>
@@ -80,24 +95,24 @@ const PlayerLeftPanel: FC<{ player: Player }> = ({ player }) => {
       <div className="bg-white/10 rounded-md px-3 py-2 mb-2">
         <div className="flex items-center gap-2 text-xs mb-1">
           <Star size={14} />
-          <span>XP Points: {player.xp_points}</span>
+          <span>XP Points: {xpPoints}</span>
         </div>
         <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
           <div className="h-full bg-white" style={{ width: `${xpPct}%` }} />
         </div>
         <div className="flex justify-between text-[10px] text-white/70 mt-1">
-          <span>{player.xp_to_next} XP for the next rank!!</span>
-          <span>{player.rank_name || 'Sprout'}</span>
+          <span>{xpToNext} XP for the next rank!!</span>
+          <span>{nextRankName}</span>
         </div>
       </div>
 
       {/* Level / Tokens */}
-      <div className="grid grid-cols-2 gap-2 mb-4">
+      <div className="grid grid-cols-2 gap-2 mb-2">
         <div className="bg-white/10 rounded-md px-3 py-2 text-xs">
           <Flame size={14} className="mb-1" />
           <div className="text-white/70">Level</div>
           <div className="font-semibold">
-            {player.level} / {player.max_level}
+            {level} / {maxLevel}
           </div>
         </div>
         <div className="bg-white/10 rounded-md px-3 py-2 text-xs">
@@ -105,6 +120,32 @@ const PlayerLeftPanel: FC<{ player: Player }> = ({ player }) => {
           <div className="text-white/70">Tokens</div>
           <div className="font-semibold">{player.tokens}</div>
         </div>
+      </div>
+
+      {/* Next rank */}
+      <div className="bg-white/10 rounded-md px-3 py-2 mb-4 text-xs">
+        <div className="flex items-center gap-2 mb-1">
+          <ChevronsUp size={14} />
+          <span className="text-white/70">Next Rank</span>
+        </div>
+        {next ? (
+          <>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold">{next.rank_name}</span>
+              <span className="text-white/70">Level {next.level}</span>
+            </div>
+            <div className="text-[10px] text-white/70 mt-1">
+              {next.xp_remaining} XP to go · {next.xp_required} XP required
+            </div>
+            {next.reward_type && (next.reward_value ?? 0) > 0 && (
+              <div className="text-[10px] text-white/70 mt-0.5">
+                Reward: {next.reward_value} {next.reward_type}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="font-semibold">Max rank reached 🎉</div>
+        )}
       </div>
 
       {/* Personal information */}

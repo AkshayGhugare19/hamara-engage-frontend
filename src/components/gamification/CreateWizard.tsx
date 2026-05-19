@@ -1,5 +1,5 @@
 import { useMemo, useState, type FC } from 'react';
-import { FieldRenderer, isRootField, type WizardStep } from './fields';
+import { FieldRenderer, isRootField, type LevelContinuation, type WizardStep } from './fields';
 import type { GamificationStatus } from '@/types/gamification.types';
 
 export interface WizardFormState {
@@ -30,6 +30,8 @@ interface CreateWizardProps {
   onSubmit: () => void;
   saving: boolean;
   editing: boolean;
+  /** Passed to the `levels` editor so a rank continues the global ladder. */
+  levelContinuation?: LevelContinuation;
 }
 
 const getValue = (form: WizardFormState, name: string) =>
@@ -45,6 +47,7 @@ const CreateWizard: FC<CreateWizardProps> = ({
   onSubmit,
   saving,
   editing,
+  levelContinuation,
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -193,6 +196,7 @@ const CreateWizard: FC<CreateWizardProps> = ({
                                 value={getValue(form, f.name)}
                                 error={errors[f.name]}
                                 onChange={(v) => setValue(f.name, v)}
+                                levelContinuation={levelContinuation}
                               />
                             </div>
                           ))}
